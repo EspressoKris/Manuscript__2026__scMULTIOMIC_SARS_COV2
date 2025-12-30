@@ -1,0 +1,7 @@
+***** WARNING: File /ceph/project/meadlab/kgurashi/CG__250425_10x/Data/10x/Demultiplexing/01_Souporcell/Run_S1146_L364B/depth_merged.bed has inconsistent naming convention for record:
+KI270728.1	1270983	1271065
+
+***** WARNING: File /ceph/project/meadlab/kgurashi/CG__250425_10x/Data/10x/Demultiplexing/01_Souporcell/Run_S1146_L364B/depth_merged.bed has inconsistent naming convention for record:
+KI270728.1	1270983	1271065
+
+find: ‘/ceph/project/meadlab/shared/02__Projects/04__MDS_Dyserythropoiesis/Results/10x/Demultiplexing/01_Souporcell/Run_S1146_L364B’: No such file or directory

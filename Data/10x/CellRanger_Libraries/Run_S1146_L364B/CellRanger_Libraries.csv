@@ -1,0 +1,23 @@
+[gene-expression]
+reference,/project/meadlab/kgurashi/CG__250425_10x/Data/10x/Resources/Genomes/refdata-gex-GRCh38-2024-A
+create-bam,true
+
+[vdj]
+reference,/project/meadlab/kgurashi/CG__250425_10x/Data/10x/Resources/Genomes/refdata-cellranger-vdj-GRCh38-alts-ensembl-7.1.0
+
+[feature]
+reference,/project/meadlab/kgurashi/CG__250425_10x/Data/10x/CellRanger_Feature_References/Run_S1146_L364B/ADT_HTO_Feature_Reference.csv
+
+[libraries]
+fastq_id,fastqs,feature_types
+L364B_08072025_GEX,/project/meadlab/kgurashi/CG__250425_10x/Data/10x/Raw_Data/Run_S1146_L364B/GEX,Gene Expression
+L364B_08072025_CSP,/project/meadlab/kgurashi/CG__250425_10x/Data/10x/Raw_Data/Run_S1146_L364B/ADT_HTO,Antibody Capture
+L364B_08072025_VDJ,/project/meadlab/kgurashi/CG__250425_10x/Data/10x/Raw_Data/Run_S1146_L364B/BCR,VDJ-B
+
+[samples]
+sample_id,hashtag_ids
+VA013_T8_GB,HTO_CO251
+VA013_T8_ASB,HTO_CO252
+VA022_T8_Ambiguous,HTO_CO254
+VA035_T8_GB,HTO_CO255
+VA035_T8_ASB,HTO_CO256

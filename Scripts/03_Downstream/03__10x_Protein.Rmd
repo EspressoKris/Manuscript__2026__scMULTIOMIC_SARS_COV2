@@ -1,0 +1,283 @@
+---
+title: "Figures"
+output: html_document
+date: '2023-04-05'
+---
+
+# 1. Setup
+
+## - Setting work directories
+
+Defining work directory within rmarkdown chunk
+
+```{r setup, include=TRUE}
+local_wd_folder = dirname(dirname(dirname(rstudioapi::getSourceEditorContext()$path)))
+knitr::opts_knit$set(root.dir = local_wd_folder)
+```
+
+```{r}
+setwd(local_wd_folder)
+```
+
+## - Setting seed
+
+This step ensures reproducibility in randomized processes
+
+```{r}
+set.seed(seed = 123, kind = "Mersenne-Twister", normal.kind = "Inversion")
+```
+
+## - Options
+
+```{r}
+options(Seurat.object.assay.version = 'v3')
+```
+
+## - Loading libraries
+
+```{r}
+library(SingleCellExperiment)
+library(Seurat)
+library(scuttle)
+library(scater)
+library(dplyr)
+library(stringr)
+library(R.utils)
+library(gridExtra)
+library(scDblFinder)
+```
+
+## - Session Info
+
+```{r}
+writeLines(capture.output(sessionInfo()), file.path(dirname(rstudioapi::getSourceEditorContext()$path), '03_Session_Info.txt'))
+```
+
+## - Defining input data and output directories
+
+```{r}
+data_folder = paste0(local_wd_folder, '/Data/10x')
+results_folder = paste0(local_wd_folder, '/Results/10x')
+Input_data = paste(data_folder, '/Per_ChromiumLane_Mapped_Data', sep = '')
+
+dir.create(path = paste(results_folder, '/ADT', sep = ''), showWarnings = F)
+```
+
+## - Loading palettes
+
+```{r}
+# Load additional colour palette packages
+library(unikn, quietly = TRUE)
+library(RColorBrewer, quietly = TRUE)
+library(yarrr, quietly = TRUE)
+library(scales, quietly = TRUE)
+library(ggsci, quietly = TRUE)
+
+# Define a set of custom color palettes from the unikn package
+mix_1 <- usecol(pal = c(Karpfenblau, "white", Peach), n = 15)
+mix_2 <- usecol(pal = c(rev(pal_seeblau), "white", pal_pinky))
+mix_3 <- usecol(pal = c(rev(pal_bordeaux), "white", pal_petrol), n = 15)
+
+# Display the custom palettes
+seecol(list(mix_1, mix_2, mix_3), col_brd = "white", lwd_brd = 4, title = "Comparing palettes mixed from unikn colors", pal_names = c("mix_1", "mix_2", "mix_3"))
+
+# Define a second set of custom palettes from the RColorBrewer and yarrr packages
+brew_mix <- usecol(c(rev(brewer.pal(n = 4, name = "Reds")), "white", brewer.pal(n = 4, name = "Blues")), n = 13)
+brew_ext <- usecol(brewer.pal(n = 11, name = "Spectral"), n = 12)
+yarrr_mix <- usecol(c(piratepal("nemo"), piratepal("bugs")))
+yarrr_mod <- usecol(c(piratepal("ipod")), n = 9)
+
+gradient_exp <- rev(c('#FFAB01', '#FC8805', '#FC5D05', '#D92211', "#D9043D", "#A6036D", "#7C038C", "#5503A6", "#A69AEE", '#D9D4F7', "#FFFFFF", "#F4F7FF", '#E9EBEF'))
+
+# Display the second set of custom palettes
+seecol(pal = list(brew_mix, brew_ext, yarrr_mix, yarrr_mod), col_brd = "white", lwd_brd = 2, title = "Using usecol() and seecol() to mix and modify palettes", pal_names = c("brew_mix", "brew_ext", "yarrr_mix", "yarrr_mod"))
+
+# Define additional custom palettes from the scales package
+natjournals_palette <- pal_npg("nrc")(10)
+```
+
+# 2. INPUT: Importing pre-filtered samples
+
+```{r}
+Merged.SeuratObj <- readRDS(paste(data_folder, 'SC_Objects', 'Annotated.rds', sep = '/'))
+```
+
+# 3. Add unique identifier to each sample CS matrix
+
+```{r}
+sample_list <- list()
+
+for (experiment in list.files(Input_data, full.names = TRUE)) {
+  for (lane in list.files(file.path(experiment, 'MULTI'), full.names = TRUE)) {
+    sample_list[[basename(experiment)]][[basename(lane)]] <- list.files(file.path(lane, 'outs', 'per_sample_outs'))
+  }
+}
+```
+
+```{r}
+CS_count_matrices <- list()
+sample_names <- c()
+
+for (experiment in names(sample_list)) {
+  for (lane in names(sample_list[[experiment]])) {
+    for (sample in sample_list[[experiment]][[lane]]) {
+      str_dynamic_variable <- paste0('Sample.', gsub("\\s+", "_", sample), '.CountMat')
+      sample_names <- c(sample_names, gsub("\\s+", "_", sample))
+      
+      dir <- file.path(Input_data, experiment, 'MULTI', lane, 'outs', 'per_sample_outs', sample, 'count', 'sample_filtered_feature_bc_matrix')
+      CS_count_matrices[[str_dynamic_variable]] <- Seurat::Read10X(data.dir = dir)[['Antibody Capture']]
+      
+      rm(dir)
+    }
+  }
+}
+```
+
+Prior aggregation, cells across the various samples are named the same
+
+```{r}
+head(colnames(CS_count_matrices[[1]]))
+```
+
+To avoid this, we remove the final characters '-1' and add a unique sample identifier
+
+```{r}
+for (count.mat in names(CS_count_matrices)) {
+  
+  index <- match(count.mat, names(CS_count_matrices))
+  updated_barcodes_names <- paste(paste(substring(colnames(CS_count_matrices[[count.mat]]),0,16),sep=""),'__Sample_', sample_names[index], sep = "")
+  colnames(CS_count_matrices[[count.mat]]) <- updated_barcodes_names
+  
+}
+```
+
+We can now confirm that the above step went well
+
+```{r}
+head(colnames(CS_count_matrices[[1]]))
+```
+
+```{r}
+CS.assays <- list()
+CS_count_matrices.filtered <- list()
+
+for (s in sample_names) {
+  
+  # Get the column names to keep
+  CB_to_keep <- colnames(Merged.SeuratObj)[colnames(Merged.SeuratObj) %in% colnames(CS_count_matrices[str_detect(names(CS_count_matrices), s)][[1]])]
+  
+  # Filter the count matrix for the current sample
+  CS_count_matrices.filtered[[s]] <- CS_count_matrices[str_detect(names(CS_count_matrices), s)][[1]][, CB_to_keep, drop = FALSE]
+  
+}
+
+# Combine all filtered matrices into a single matrix
+merged_CS_count_matrix <- do.call(cbind, CS_count_matrices.filtered)
+
+merged_CS_count_matrix <- merged_CS_count_matrix[,colnames(Merged.SeuratObj)]
+
+# View the merged matrix
+print(merged_CS_count_matrix)
+
+# Create HTO assay
+HTO.assay <- CreateAssayObject(
+  counts = merged_CS_count_matrix[str_detect(rownames(merged_CS_count_matrix), pattern = 'HTO'), ],
+  key = 'HTO'
+)
+
+# Create ADT assay (rows that do NOT match 'HTO')
+ADT.assay <- CreateAssayObject(
+  counts = merged_CS_count_matrix[!str_detect(rownames(merged_CS_count_matrix), pattern = 'HTO'), ],
+  key = 'ADT'
+)
+
+Merged.SeuratObj@assays[['HTO']] <- HTO.assay
+Merged.SeuratObj@assays[['ADT']] <- ADT.assay
+
+Merged.SeuratObj <- NormalizeData(Merged.SeuratObj, assay = 'ADT', margin = 2)
+```
+
+```{r}
+saveRDS(Merged.SeuratObj, paste(data_folder, 'SC_Objects', 'Added_ADT.rds', sep = '/'))
+```
+
+```{r}
+sample <- 'VA013_ASB'
+
+cells <- WhichCells(Merged.SeuratObj, expression = Identity %in% sample)
+cell_types <- Merged.SeuratObj@meta.data[cells, 'Combined_celltype_annotation']
+cells_highlight <- split(cells, cell_types)
+
+DimPlot(Merged.SeuratObj, reduction = 'h_umap', cells.highlight = cells_highlight,
+        group.by='Combined_celltype_annotation', 
+        label = F, pt.size = 1.4, sizes.highlight = 0.9, alpha=0.8, order = T,
+        repel = T) + theme_void() + scale_color_manual(values = c('Naive' = "#c97c5d",
+                                                     "Classical_Memory" = "#bf0603",
+                                                     "DN" = "grey40",
+                                                     "IgM_Memory" = "pink",
+                                                     "Mature naive B cells" = '#593d3b',
+                                                     "Nonswitched memory B cells" = "#96c7c6",
+                                                     "Class switched memory B cells" = "#004e89",
+                                                     "Transitional" = "darkgreen"),
+                                                      na.value = '#DCDADB') + 
+  theme(plot.title = element_text(hjust=0.5, vjust = 0.5),
+        plot.subtitle = element_text(hjust=0.5, vjust = 0.5),
+        legend.position = 'none') +
+  ggtitle(label = sprintf('%s', sample), subtitle = paste('N = ', length(cells), sep = ''))
+```
+
+```{r}
+for (sample in unique(Merged.SeuratObj$Identity)) {
+  for (target in rownames(Merged.SeuratObj@assays$ADT)) {
+
+    # Extract UMAP embeddings and metadata
+    umap_embeddings <- as.data.frame(Merged.SeuratObj@reductions$h_umap@cell.embeddings)
+    umap_embeddings$feature <- FetchData(Merged.SeuratObj, vars = target)[, 1]  # Add feature expression
+    umap_embeddings$cell <- rownames(umap_embeddings)
+    
+    # Define all cells and selected cells
+    all_cells <- umap_embeddings
+    selected_cells <- umap_embeddings[rownames(umap_embeddings) %in% WhichCells(Merged.SeuratObj, expression = Identity %in% sample), ]
+    
+    # Create the plot
+    library(ggplot2)
+    highlight_plot <- ggplot() +
+        # Plot all cells as background
+        geom_point(data = all_cells, aes(x = humap_1, y = humap_2), color='#DCDADB', alpha = 0.3, size = 0.5) +
+        # Overlay selected cells
+        geom_point(data = selected_cells, aes(x = humap_1, y = humap_2, 
+                                              color = feature), size = 2, alpha = 1, stroke = 1) +
+        scale_color_gradientn(colours = gradient_exp, name = 'CLR normalised exp.') +
+        theme_void() +
+        theme(
+            legend.position = 'right',
+                  legend.key.width  = unit(0.5, "lines"),
+                  legend.key.height = unit(2.25, "lines"), 
+                  legend.title.position = 'right', 
+                  legend.title = element_text(angle = -90, vjust = 0.5, hjust = 0.5),
+                  legend.text.position = "left", 
+                  legend.ticks.length = unit(0, "cm"), 
+            axis.text = element_text(size = 0),
+            axis.title.y = element_text(size = 14, face = 'bold', angle = 90),
+            plot.title = element_text(hjust = 0.5, vjust = 0.5, face = 'bold'),
+            plot.subtitle = element_text(hjust = 0.5, vjust = 0.5, face = 'bold')
+        ) +
+        ggtitle(label = sample, subtitle = paste0('N cells with ADT > 0: ', 
+                                                  length(grep(TRUE, selected_cells$feature > 0)),
+                                                  '/',
+                                                  nrow(selected_cells),
+                                                  ' (',
+                                                  round((length(grep(TRUE, selected_cells$feature > 0))/nrow(selected_cells))*100, 1),
+                                                  '%)')) +
+        ylab(target) +
+        xlab('') 
+    
+    # Display the plot
+    print(highlight_plot)
+    results_folder
+    png(paste0(results_folder, '/ADT/', sample, '_', target, '.png'), width = 10, height = 8, units = 'in', res = 300, type = 'cairo')
+    print(highlight_plot)
+    dev.off()
+  }
+}
+```

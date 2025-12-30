@@ -1,0 +1,150 @@
+Martian Runtime - v4.0.13
+Serving UI at http://imm-wn1:41199?auth=pQqT_41RJoEhSdTVySzoyMnYtvExqimkEYvplrH9uPo
+
+Running preflight checks (please wait)...
+
+[error] Pipestance failed. Error log at:
+Run_S1146_L364D_No_HTO/SC_MULTI_CS/MULTI_PREFLIGHT/fork0/chnk0-uf94244eb00/_errors
+
+Log message:
+failed to parse CSV: [feature] reference is missing but feature barcode libraries provided
+
+Waiting 6 seconds for UI to do final refresh.
+Pipestance failed. Use --noexit option to keep UI running after failure.
+
+2025-12-19 06:04:55 Shutting down.
+Saving pipestance info to "Run_S1146_L364D_No_HTO/Run_S1146_L364D_No_HTO.mri.tgz"
+For assistance, upload this file to 10x Genomics by running:
+
+cellranger upload <your_email> "Run_S1146_L364D_No_HTO/Run_S1146_L364D_No_HTO.mri.tgz"
+
+Successfully processed: Run_S1146_L364D_No_HTO
+CBB Profiling started Fri Dec 19 06:04:48 2025
+SLURM_JOB_ID		4761196
+REQ_CPU_CORES		4
+REQ_MEMORY_GB		40.000000
+Starting profiling...
+
+                                                                                
+                                                                                
+                                    CPU (cores)                                 
+    4 +---------------------------------------------------------------------+   
+      |           +          +           +           +          +           |   
+      |                                                                     |   
+  3.5 |-+                                                                 +-|   
+      |                                                                     |   
+      |                                                                     |   
+    3 |-+                                                                 +-|   
+      |                                                                     |   
+      |                                                                     |   
+  2.5 |-+                                                                 +-|   
+      |                                                                     |   
+    2 |-+                                                                 +-|   
+      |                                                                     |   
+      |                                                                     |   
+  1.5 |-+                                                                 +-|   
+      |                                                                     |   
+      |                                                                     |   
+    1 |-+                                                                 +-|   
+      |                                                                     |   
+      |                                                                     |   
+  0.5 |-+                                                                 +-|   
+      |                                                                     |   
+      |     ###############################################     +           |   
+    0 +---------------------------------------------------------------------+   
+      0           1          2           3           4          5           6   
+                                Job profiling step                              
+                                                                                
+
+                                                                                
+                                                                                
+                                   Memory (GB)                                  
+  40 +----------------------------------------------------------------------+   
+     |           +           +           +          +           +           |   
+     |                                                                      |   
+  35 |-+                                                                  +-|   
+     |                                                                      |   
+     |                                                                      |   
+  30 |-+                                                                  +-|   
+     |                                                                      |   
+     |                                                                      |   
+  25 |-+                                                                  +-|   
+     |                                                                      |   
+  20 |-+                                                                  +-|   
+     |                                                                      |   
+     |                                                                      |   
+  15 |-+                                                                  +-|   
+     |                                                                      |   
+     |                                                                      |   
+  10 |-+                                                                  +-|   
+     |                                                                      |   
+     |                                                                      |   
+   5 |-+                                                                  +-|   
+     |                                                                      |   
+     |           +           +           +          +           +           |   
+   0 +----------------------------------------------------------------------+   
+     0           1           2           3          4           5           6   
+                               Job profiling step                               
+                                                                                
+
+                                                                                
+                                                                                
+                                  Data read (GB)                                
+    1 +---------------------------------------------------------------------+   
+      |           +          +           +           +          +           |   
+      |                                                                     |   
+      |                                                                     |   
+      |                                                                     |   
+      |                                                                     |   
+  0.5 |-+                                                                 +-|   
+      |                                                                     |   
+      |                                                                     |   
+      |                                                                     |   
+      |                                                                     |   
+    0 |#####################################################################|   
+      |                                                                     |   
+      |                                                                     |   
+      |                                                                     |   
+      |                                                                     |   
+      |                                                                     |   
+ -0.5 |-+                                                                 +-|   
+      |                                                                     |   
+      |                                                                     |   
+      |                                                                     |   
+      |                                                                     |   
+      |           +          +           +           +          +           |   
+   -1 +---------------------------------------------------------------------+   
+      0           1          2           3           4          5           6   
+                                Job profiling step                              
+                                                                                
+
+                                                                                
+                                                                                
+                                   Data written (GB)                            
+   0.0005 +-----------------------------------------------------------------+   
+          |          +     #################################################|   
+  0.00045 |-+        ######                                               +-|   
+          |         #                                                       |   
+          |         #                                                       |   
+   0.0004 |-+      #                                                      +-|   
+          |        #                                                        |   
+  0.00035 |-+     #                                                       +-|   
+          |       #                                                         |   
+   0.0003 |-+    #                                                        +-|   
+          |      #                                                          |   
+  0.00025 |-+   #                                                         +-|   
+          |     #                                                           |   
+          |    #                                                            |   
+   0.0002 |-+  #                                                          +-|   
+          |   #                                                             |   
+  0.00015 |-+ #                                                           +-|   
+          |  #                                                              |   
+   0.0001 |-+#                                                            +-|   
+          | #                                                               |   
+          | #                                                               |   
+    5e-05 |#+                                                             +-|   
+          |#         +          +          +          +          +          |   
+        0 +-----------------------------------------------------------------+   
+          0          1          2          3          4          5          6   
+                                  Job profiling step                            
+                                                                                

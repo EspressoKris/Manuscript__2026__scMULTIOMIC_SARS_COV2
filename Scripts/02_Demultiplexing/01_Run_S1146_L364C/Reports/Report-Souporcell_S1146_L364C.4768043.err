@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/opt/souporcell/souporcell_pipeline.py", line 64, in <module>
+    with open_function(args.barcodes) as barcodes:
+  File "/opt/souporcell/souporcell_pipeline.py", line 57, in <lambda>
+    open_function = lambda f: gzip.open(f,"rt") if f[-3:] == ".gz" else open(f)
+  File "/usr/local/envs/py36/lib/python3.6/gzip.py", line 53, in open
+    binary_file = GzipFile(filename, gz_mode, compresslevel)
+  File "/usr/local/envs/py36/lib/python3.6/gzip.py", line 163, in __init__
+    fileobj = self.myfileobj = builtins.open(filename, mode or 'rb')
+FileNotFoundError: [Errno 2] No such file or directory: '/project/meadlab/kgurashi/CG__250425_10x/Data/10x/Per_ChromiumLane_Mapped_Data/Run_S1146_L364C_No_HTO/outs/per_sample_outs/Run_S1146_L364C_No_HTO/count/sample_filtered_feature_bc_matrix/barcodes.tsv.gz'
+find: ‘/ceph/project/meadlab/shared/02__Projects/04__MDS_Dyserythropoiesis/Results/10x/Demultiplexing/01_Souporcell/Run_S1146_L364C’: No such file or directory

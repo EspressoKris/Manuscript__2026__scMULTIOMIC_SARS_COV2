@@ -1,0 +1,675 @@
+Martian Runtime - v4.0.13
+2025-12-17 18:40:01 [runtime] Reattaching in local mode.
+Serving UI at http://imm-wn5:39315?auth=wqhifBKvr9fqkiVgHwtdvDPpeMFNeixSr34BWRyccQk
+
+
+Outputs:
+- Multi Config CSV: /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/config.csv
+- V(D)J reference:
+    fasta:
+      regions: /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/vdj_reference/fasta/regions.fa
+    reference: /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/vdj_reference/reference.json
+- multi:
+    multiplexing_analysis:
+      Specifies tag assignments per cell:                                            /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/multi/multiplexing_analysis/tag_calls_per_cell.csv
+      Summarizes basic statistics about tag assignments:                             /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/multi/multiplexing_analysis/tag_calls_summary.csv
+      Gel-bead barcodes in common for all pairs of probe barcodes:                   null
+      Lists the posterior probabilities for tag assignments provided by JIBES model: /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/multi/multiplexing_analysis/assignment_confidence_table.csv
+      Provides a JSON that lists, for each tag, the cells it has been assigned to:   /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/multi/multiplexing_analysis/cells_per_tag.json
+      Original barcode sample assignment passed in the Multi configuration:          null
+    count:
+      Feature reference file:                                              /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/multi/count/feature_reference.csv
+      Molecule info file containing all molecules in the experiment:       /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/multi/count/raw_molecule_info.h5
+      Raw Loupe Browser file containing all molecules in the experiment:   /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/multi/count/raw_cloupe.cloupe
+      Contains counts for all features and all barcodes in the experiment: /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/multi/count/raw_feature_bc_matrix
+      Contains counts for all features and all barcodes in the experiment: /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/multi/count/raw_feature_bc_matrix.h5
+      Contains counts for all probes and all barcodes in a FRP experiment: null
+      Alignments from unassigned barcodes:                                 /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/multi/count/unassigned_alignments.bam
+      BAI Index for alignments from unassigned barcodes:                   /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/multi/count/unassigned_alignments.bam.bai
+      CSI Index for alignments from unassigned barcodes:                   null
+      Antibody and Antigen aggregate barcodes:                             null
+    vdj_b:
+      All-contig FASTA:              /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/multi/vdj_b/all_contig.fasta
+      All-contig FASTA index:        /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/multi/vdj_b/all_contig.fasta.fai
+      All-contig FASTQ:              /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/multi/vdj_b/all_contig.fastq
+      Read-contig alignments:        /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/multi/vdj_b/all_contig.bam
+      Read-contig alignment index:   /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/multi/vdj_b/all_contig.bam.bai
+      All contig annotations (JSON): /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/multi/vdj_b/all_contig_annotations.json
+      All contig annotations (BED):  /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/multi/vdj_b/all_contig_annotations.bed
+      All contig annotations (CSV):  /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/multi/vdj_b/all_contig_annotations.csv
+    vdj_t:
+      All-contig FASTA:              null
+      All-contig FASTA index:        null
+      All-contig FASTQ:              null
+      Read-contig alignments:        null
+      Read-contig alignment index:   null
+      All contig annotations (JSON): null
+      All contig annotations (BED):  null
+      All contig annotations (CSV):  null
+    vdj_t_gd:
+      All-contig FASTA:              null
+      All-contig FASTA index:        null
+      All-contig FASTQ:              null
+      Read-contig alignments:        null
+      Read-contig alignment index:   null
+      All contig annotations (JSON): null
+      All contig annotations (BED):  null
+      All contig annotations (CSV):  null
+- per_sample_outs:  {
+    VA025_T8_ASB:
+      count:
+        Secondary analysis output CSV:                                   /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_ASB/count/analysis
+        Loupe Browser File:                                              /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_ASB/count/sample_cloupe.cloupe
+        CRISPR analysis outputs:                                         null
+        Sample Antibody and Antigen aggregate barcodes:                  null
+        Feature reference:                                               /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_ASB/count/feature_reference.csv
+        Sample barcodes:                                                 /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_ASB/count/sample_filtered_barcodes.csv
+        Sample filtered feature-barcode matrices MEX:                    /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_ASB/count/sample_filtered_feature_bc_matrix
+        Sample filtered feature-barcode matrices H5:                     /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_ASB/count/sample_filtered_feature_bc_matrix.h5
+        Sample raw feature-barcode matrices MEX:                         null
+        Sample raw feature-barcode matrices H5:                          null
+        Sample raw probe-barcode matrix H5:                              null
+        BAM alignments for reads assigned to this sample:                /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_ASB/count/sample_alignments.bam
+        BAM BAI index for reads assigned to this sample:                 /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_ASB/count/sample_alignments.bam.bai
+        BAM CSI index for reads assigned to this sample:                 null
+        Per-molecule read information for reads assigned to this sample: /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_ASB/count/sample_molecule_info.h5
+        Target Panel File:                                               null
+        Probe Set File:                                                  null
+        Outputs of cell annotation cell typing:                          null
+      vdj_b:
+        Clonotype info:                                   /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_ASB/vdj_b/clonotypes.csv
+        Filtered contig sequences FASTA:                  /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_ASB/vdj_b/filtered_contig.fasta
+        Filtered contig sequences FASTQ:                  /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_ASB/vdj_b/filtered_contig.fastq
+        Filtered contigs (CSV):                           /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_ASB/vdj_b/filtered_contig_annotations.csv
+        Barcodes that are declared to be targetted cells: /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_ASB/vdj_b/cell_barcodes.json
+        Clonotype consensus FASTA:                        /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_ASB/vdj_b/consensus.fasta
+        Clonotype consensus FASTA index:                  /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_ASB/vdj_b/consensus.fasta.fai
+        Contig-consensus alignments:                      /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_ASB/vdj_b/consensus.bam
+        Contig-consensus alignment index:                 /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_ASB/vdj_b/consensus.bam.bai
+        Clonotype consensus annotations (CSV):            /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_ASB/vdj_b/consensus_annotations.csv
+        Concatenated reference sequences:                 /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_ASB/vdj_b/concat_ref.fasta
+        Concatenated reference index:                     /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_ASB/vdj_b/concat_ref.fasta.fai
+        Contig-reference alignments:                      /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_ASB/vdj_b/concat_ref.bam
+        Contig-reference alignment index:                 /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_ASB/vdj_b/concat_ref.bam.bai
+        Loupe V(D)J Browser file:                         /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_ASB/vdj_b/vloupe.vloupe
+        AIRR Rearrangement TSV:                           /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_ASB/vdj_b/airr_rearrangement.tsv
+        Contig info (ProtoBuf format):                    /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_ASB/vdj_b/vdj_contig_info.pb
+        Inferred germline sequences:                      /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_ASB/vdj_b/donor_regions.fa
+      vdj_t:
+        Clonotype info:                                   null
+        Filtered contig sequences FASTA:                  null
+        Filtered contig sequences FASTQ:                  null
+        Filtered contigs (CSV):                           null
+        Barcodes that are declared to be targetted cells: null
+        Clonotype consensus FASTA:                        null
+        Clonotype consensus FASTA index:                  null
+        Contig-consensus alignments:                      null
+        Contig-consensus alignment index:                 null
+        Clonotype consensus annotations (CSV):            null
+        Concatenated reference sequences:                 null
+        Concatenated reference index:                     null
+        Contig-reference alignments:                      null
+        Contig-reference alignment index:                 null
+        Loupe V(D)J Browser file:                         null
+        AIRR Rearrangement TSV:                           null
+        Contig info (ProtoBuf format):                    null
+        Inferred germline sequences:                      null
+      vdj_t_gd:
+        Clonotype info:                                   null
+        Filtered contig sequences FASTA:                  null
+        Filtered contig sequences FASTQ:                  null
+        Filtered contigs (CSV):                           null
+        Barcodes that are declared to be targetted cells: null
+        Clonotype consensus FASTA:                        null
+        Clonotype consensus FASTA index:                  null
+        Contig-consensus alignments:                      null
+        Contig-consensus alignment index:                 null
+        Clonotype consensus annotations (CSV):            null
+        Concatenated reference sequences:                 null
+        Concatenated reference index:                     null
+        Contig-reference alignments:                      null
+        Contig-reference alignment index:                 null
+        Loupe V(D)J Browser file:                         null
+        AIRR Rearrangement TSV:                           null
+        Contig info (ProtoBuf format):                    null
+        Inferred germline sequences:                      null
+      antigen_analysis: null
+      web_summary:      /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_ASB/web_summary.html
+      metrics_summary:  /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_ASB/metrics_summary.csv
+    VA025_T8_GB:
+      count:
+        Secondary analysis output CSV:                                   /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_GB/count/analysis
+        Loupe Browser File:                                              /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_GB/count/sample_cloupe.cloupe
+        CRISPR analysis outputs:                                         null
+        Sample Antibody and Antigen aggregate barcodes:                  null
+        Feature reference:                                               /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_GB/count/feature_reference.csv
+        Sample barcodes:                                                 /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_GB/count/sample_filtered_barcodes.csv
+        Sample filtered feature-barcode matrices MEX:                    /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_GB/count/sample_filtered_feature_bc_matrix
+        Sample filtered feature-barcode matrices H5:                     /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_GB/count/sample_filtered_feature_bc_matrix.h5
+        Sample raw feature-barcode matrices MEX:                         null
+        Sample raw feature-barcode matrices H5:                          null
+        Sample raw probe-barcode matrix H5:                              null
+        BAM alignments for reads assigned to this sample:                /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_GB/count/sample_alignments.bam
+        BAM BAI index for reads assigned to this sample:                 /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_GB/count/sample_alignments.bam.bai
+        BAM CSI index for reads assigned to this sample:                 null
+        Per-molecule read information for reads assigned to this sample: /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_GB/count/sample_molecule_info.h5
+        Target Panel File:                                               null
+        Probe Set File:                                                  null
+        Outputs of cell annotation cell typing:                          null
+      vdj_b:
+        Clonotype info:                                   /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_GB/vdj_b/clonotypes.csv
+        Filtered contig sequences FASTA:                  /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_GB/vdj_b/filtered_contig.fasta
+        Filtered contig sequences FASTQ:                  /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_GB/vdj_b/filtered_contig.fastq
+        Filtered contigs (CSV):                           /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_GB/vdj_b/filtered_contig_annotations.csv
+        Barcodes that are declared to be targetted cells: /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_GB/vdj_b/cell_barcodes.json
+        Clonotype consensus FASTA:                        /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_GB/vdj_b/consensus.fasta
+        Clonotype consensus FASTA index:                  /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_GB/vdj_b/consensus.fasta.fai
+        Contig-consensus alignments:                      /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_GB/vdj_b/consensus.bam
+        Contig-consensus alignment index:                 /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_GB/vdj_b/consensus.bam.bai
+        Clonotype consensus annotations (CSV):            /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_GB/vdj_b/consensus_annotations.csv
+        Concatenated reference sequences:                 /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_GB/vdj_b/concat_ref.fasta
+        Concatenated reference index:                     /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_GB/vdj_b/concat_ref.fasta.fai
+        Contig-reference alignments:                      /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_GB/vdj_b/concat_ref.bam
+        Contig-reference alignment index:                 /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_GB/vdj_b/concat_ref.bam.bai
+        Loupe V(D)J Browser file:                         /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_GB/vdj_b/vloupe.vloupe
+        AIRR Rearrangement TSV:                           /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_GB/vdj_b/airr_rearrangement.tsv
+        Contig info (ProtoBuf format):                    /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_GB/vdj_b/vdj_contig_info.pb
+        Inferred germline sequences:                      /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_GB/vdj_b/donor_regions.fa
+      vdj_t:
+        Clonotype info:                                   null
+        Filtered contig sequences FASTA:                  null
+        Filtered contig sequences FASTQ:                  null
+        Filtered contigs (CSV):                           null
+        Barcodes that are declared to be targetted cells: null
+        Clonotype consensus FASTA:                        null
+        Clonotype consensus FASTA index:                  null
+        Contig-consensus alignments:                      null
+        Contig-consensus alignment index:                 null
+        Clonotype consensus annotations (CSV):            null
+        Concatenated reference sequences:                 null
+        Concatenated reference index:                     null
+        Contig-reference alignments:                      null
+        Contig-reference alignment index:                 null
+        Loupe V(D)J Browser file:                         null
+        AIRR Rearrangement TSV:                           null
+        Contig info (ProtoBuf format):                    null
+        Inferred germline sequences:                      null
+      vdj_t_gd:
+        Clonotype info:                                   null
+        Filtered contig sequences FASTA:                  null
+        Filtered contig sequences FASTQ:                  null
+        Filtered contigs (CSV):                           null
+        Barcodes that are declared to be targetted cells: null
+        Clonotype consensus FASTA:                        null
+        Clonotype consensus FASTA index:                  null
+        Contig-consensus alignments:                      null
+        Contig-consensus alignment index:                 null
+        Clonotype consensus annotations (CSV):            null
+        Concatenated reference sequences:                 null
+        Concatenated reference index:                     null
+        Contig-reference alignments:                      null
+        Contig-reference alignment index:                 null
+        Loupe V(D)J Browser file:                         null
+        AIRR Rearrangement TSV:                           null
+        Contig info (ProtoBuf format):                    null
+        Inferred germline sequences:                      null
+      antigen_analysis: null
+      web_summary:      /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_GB/web_summary.html
+      metrics_summary:  /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA025_T8_GB/metrics_summary.csv
+    VA038_T8_ASB:
+      count:
+        Secondary analysis output CSV:                                   /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_ASB/count/analysis
+        Loupe Browser File:                                              /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_ASB/count/sample_cloupe.cloupe
+        CRISPR analysis outputs:                                         null
+        Sample Antibody and Antigen aggregate barcodes:                  null
+        Feature reference:                                               /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_ASB/count/feature_reference.csv
+        Sample barcodes:                                                 /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_ASB/count/sample_filtered_barcodes.csv
+        Sample filtered feature-barcode matrices MEX:                    /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_ASB/count/sample_filtered_feature_bc_matrix
+        Sample filtered feature-barcode matrices H5:                     /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_ASB/count/sample_filtered_feature_bc_matrix.h5
+        Sample raw feature-barcode matrices MEX:                         null
+        Sample raw feature-barcode matrices H5:                          null
+        Sample raw probe-barcode matrix H5:                              null
+        BAM alignments for reads assigned to this sample:                /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_ASB/count/sample_alignments.bam
+        BAM BAI index for reads assigned to this sample:                 /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_ASB/count/sample_alignments.bam.bai
+        BAM CSI index for reads assigned to this sample:                 null
+        Per-molecule read information for reads assigned to this sample: /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_ASB/count/sample_molecule_info.h5
+        Target Panel File:                                               null
+        Probe Set File:                                                  null
+        Outputs of cell annotation cell typing:                          null
+      vdj_b:
+        Clonotype info:                                   /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_ASB/vdj_b/clonotypes.csv
+        Filtered contig sequences FASTA:                  /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_ASB/vdj_b/filtered_contig.fasta
+        Filtered contig sequences FASTQ:                  /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_ASB/vdj_b/filtered_contig.fastq
+        Filtered contigs (CSV):                           /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_ASB/vdj_b/filtered_contig_annotations.csv
+        Barcodes that are declared to be targetted cells: /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_ASB/vdj_b/cell_barcodes.json
+        Clonotype consensus FASTA:                        /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_ASB/vdj_b/consensus.fasta
+        Clonotype consensus FASTA index:                  /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_ASB/vdj_b/consensus.fasta.fai
+        Contig-consensus alignments:                      /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_ASB/vdj_b/consensus.bam
+        Contig-consensus alignment index:                 /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_ASB/vdj_b/consensus.bam.bai
+        Clonotype consensus annotations (CSV):            /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_ASB/vdj_b/consensus_annotations.csv
+        Concatenated reference sequences:                 /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_ASB/vdj_b/concat_ref.fasta
+        Concatenated reference index:                     /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_ASB/vdj_b/concat_ref.fasta.fai
+        Contig-reference alignments:                      /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_ASB/vdj_b/concat_ref.bam
+        Contig-reference alignment index:                 /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_ASB/vdj_b/concat_ref.bam.bai
+        Loupe V(D)J Browser file:                         /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_ASB/vdj_b/vloupe.vloupe
+        AIRR Rearrangement TSV:                           /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_ASB/vdj_b/airr_rearrangement.tsv
+        Contig info (ProtoBuf format):                    /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_ASB/vdj_b/vdj_contig_info.pb
+        Inferred germline sequences:                      /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_ASB/vdj_b/donor_regions.fa
+      vdj_t:
+        Clonotype info:                                   null
+        Filtered contig sequences FASTA:                  null
+        Filtered contig sequences FASTQ:                  null
+        Filtered contigs (CSV):                           null
+        Barcodes that are declared to be targetted cells: null
+        Clonotype consensus FASTA:                        null
+        Clonotype consensus FASTA index:                  null
+        Contig-consensus alignments:                      null
+        Contig-consensus alignment index:                 null
+        Clonotype consensus annotations (CSV):            null
+        Concatenated reference sequences:                 null
+        Concatenated reference index:                     null
+        Contig-reference alignments:                      null
+        Contig-reference alignment index:                 null
+        Loupe V(D)J Browser file:                         null
+        AIRR Rearrangement TSV:                           null
+        Contig info (ProtoBuf format):                    null
+        Inferred germline sequences:                      null
+      vdj_t_gd:
+        Clonotype info:                                   null
+        Filtered contig sequences FASTA:                  null
+        Filtered contig sequences FASTQ:                  null
+        Filtered contigs (CSV):                           null
+        Barcodes that are declared to be targetted cells: null
+        Clonotype consensus FASTA:                        null
+        Clonotype consensus FASTA index:                  null
+        Contig-consensus alignments:                      null
+        Contig-consensus alignment index:                 null
+        Clonotype consensus annotations (CSV):            null
+        Concatenated reference sequences:                 null
+        Concatenated reference index:                     null
+        Contig-reference alignments:                      null
+        Contig-reference alignment index:                 null
+        Loupe V(D)J Browser file:                         null
+        AIRR Rearrangement TSV:                           null
+        Contig info (ProtoBuf format):                    null
+        Inferred germline sequences:                      null
+      antigen_analysis: null
+      web_summary:      /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_ASB/web_summary.html
+      metrics_summary:  /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_ASB/metrics_summary.csv
+    VA038_T8_GB:
+      count:
+        Secondary analysis output CSV:                                   /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_GB/count/analysis
+        Loupe Browser File:                                              /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_GB/count/sample_cloupe.cloupe
+        CRISPR analysis outputs:                                         null
+        Sample Antibody and Antigen aggregate barcodes:                  null
+        Feature reference:                                               /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_GB/count/feature_reference.csv
+        Sample barcodes:                                                 /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_GB/count/sample_filtered_barcodes.csv
+        Sample filtered feature-barcode matrices MEX:                    /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_GB/count/sample_filtered_feature_bc_matrix
+        Sample filtered feature-barcode matrices H5:                     /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_GB/count/sample_filtered_feature_bc_matrix.h5
+        Sample raw feature-barcode matrices MEX:                         null
+        Sample raw feature-barcode matrices H5:                          null
+        Sample raw probe-barcode matrix H5:                              null
+        BAM alignments for reads assigned to this sample:                /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_GB/count/sample_alignments.bam
+        BAM BAI index for reads assigned to this sample:                 /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_GB/count/sample_alignments.bam.bai
+        BAM CSI index for reads assigned to this sample:                 null
+        Per-molecule read information for reads assigned to this sample: /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_GB/count/sample_molecule_info.h5
+        Target Panel File:                                               null
+        Probe Set File:                                                  null
+        Outputs of cell annotation cell typing:                          null
+      vdj_b:
+        Clonotype info:                                   /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_GB/vdj_b/clonotypes.csv
+        Filtered contig sequences FASTA:                  /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_GB/vdj_b/filtered_contig.fasta
+        Filtered contig sequences FASTQ:                  /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_GB/vdj_b/filtered_contig.fastq
+        Filtered contigs (CSV):                           /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_GB/vdj_b/filtered_contig_annotations.csv
+        Barcodes that are declared to be targetted cells: /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_GB/vdj_b/cell_barcodes.json
+        Clonotype consensus FASTA:                        /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_GB/vdj_b/consensus.fasta
+        Clonotype consensus FASTA index:                  /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_GB/vdj_b/consensus.fasta.fai
+        Contig-consensus alignments:                      /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_GB/vdj_b/consensus.bam
+        Contig-consensus alignment index:                 /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_GB/vdj_b/consensus.bam.bai
+        Clonotype consensus annotations (CSV):            /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_GB/vdj_b/consensus_annotations.csv
+        Concatenated reference sequences:                 /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_GB/vdj_b/concat_ref.fasta
+        Concatenated reference index:                     /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_GB/vdj_b/concat_ref.fasta.fai
+        Contig-reference alignments:                      /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_GB/vdj_b/concat_ref.bam
+        Contig-reference alignment index:                 /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_GB/vdj_b/concat_ref.bam.bai
+        Loupe V(D)J Browser file:                         /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_GB/vdj_b/vloupe.vloupe
+        AIRR Rearrangement TSV:                           /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_GB/vdj_b/airr_rearrangement.tsv
+        Contig info (ProtoBuf format):                    /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_GB/vdj_b/vdj_contig_info.pb
+        Inferred germline sequences:                      /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_GB/vdj_b/donor_regions.fa
+      vdj_t:
+        Clonotype info:                                   null
+        Filtered contig sequences FASTA:                  null
+        Filtered contig sequences FASTQ:                  null
+        Filtered contigs (CSV):                           null
+        Barcodes that are declared to be targetted cells: null
+        Clonotype consensus FASTA:                        null
+        Clonotype consensus FASTA index:                  null
+        Contig-consensus alignments:                      null
+        Contig-consensus alignment index:                 null
+        Clonotype consensus annotations (CSV):            null
+        Concatenated reference sequences:                 null
+        Concatenated reference index:                     null
+        Contig-reference alignments:                      null
+        Contig-reference alignment index:                 null
+        Loupe V(D)J Browser file:                         null
+        AIRR Rearrangement TSV:                           null
+        Contig info (ProtoBuf format):                    null
+        Inferred germline sequences:                      null
+      vdj_t_gd:
+        Clonotype info:                                   null
+        Filtered contig sequences FASTA:                  null
+        Filtered contig sequences FASTQ:                  null
+        Filtered contigs (CSV):                           null
+        Barcodes that are declared to be targetted cells: null
+        Clonotype consensus FASTA:                        null
+        Clonotype consensus FASTA index:                  null
+        Contig-consensus alignments:                      null
+        Contig-consensus alignment index:                 null
+        Clonotype consensus annotations (CSV):            null
+        Concatenated reference sequences:                 null
+        Concatenated reference index:                     null
+        Contig-reference alignments:                      null
+        Contig-reference alignment index:                 null
+        Loupe V(D)J Browser file:                         null
+        AIRR Rearrangement TSV:                           null
+        Contig info (ProtoBuf format):                    null
+        Inferred germline sequences:                      null
+      antigen_analysis: null
+      web_summary:      /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_GB/web_summary.html
+      metrics_summary:  /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA038_T8_GB/metrics_summary.csv
+    VA059_T8_ASB:
+      count:
+        Secondary analysis output CSV:                                   /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_ASB/count/analysis
+        Loupe Browser File:                                              /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_ASB/count/sample_cloupe.cloupe
+        CRISPR analysis outputs:                                         null
+        Sample Antibody and Antigen aggregate barcodes:                  null
+        Feature reference:                                               /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_ASB/count/feature_reference.csv
+        Sample barcodes:                                                 /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_ASB/count/sample_filtered_barcodes.csv
+        Sample filtered feature-barcode matrices MEX:                    /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_ASB/count/sample_filtered_feature_bc_matrix
+        Sample filtered feature-barcode matrices H5:                     /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_ASB/count/sample_filtered_feature_bc_matrix.h5
+        Sample raw feature-barcode matrices MEX:                         null
+        Sample raw feature-barcode matrices H5:                          null
+        Sample raw probe-barcode matrix H5:                              null
+        BAM alignments for reads assigned to this sample:                /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_ASB/count/sample_alignments.bam
+        BAM BAI index for reads assigned to this sample:                 /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_ASB/count/sample_alignments.bam.bai
+        BAM CSI index for reads assigned to this sample:                 null
+        Per-molecule read information for reads assigned to this sample: /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_ASB/count/sample_molecule_info.h5
+        Target Panel File:                                               null
+        Probe Set File:                                                  null
+        Outputs of cell annotation cell typing:                          null
+      vdj_b:
+        Clonotype info:                                   /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_ASB/vdj_b/clonotypes.csv
+        Filtered contig sequences FASTA:                  /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_ASB/vdj_b/filtered_contig.fasta
+        Filtered contig sequences FASTQ:                  /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_ASB/vdj_b/filtered_contig.fastq
+        Filtered contigs (CSV):                           /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_ASB/vdj_b/filtered_contig_annotations.csv
+        Barcodes that are declared to be targetted cells: /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_ASB/vdj_b/cell_barcodes.json
+        Clonotype consensus FASTA:                        /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_ASB/vdj_b/consensus.fasta
+        Clonotype consensus FASTA index:                  /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_ASB/vdj_b/consensus.fasta.fai
+        Contig-consensus alignments:                      /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_ASB/vdj_b/consensus.bam
+        Contig-consensus alignment index:                 /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_ASB/vdj_b/consensus.bam.bai
+        Clonotype consensus annotations (CSV):            /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_ASB/vdj_b/consensus_annotations.csv
+        Concatenated reference sequences:                 /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_ASB/vdj_b/concat_ref.fasta
+        Concatenated reference index:                     /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_ASB/vdj_b/concat_ref.fasta.fai
+        Contig-reference alignments:                      /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_ASB/vdj_b/concat_ref.bam
+        Contig-reference alignment index:                 /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_ASB/vdj_b/concat_ref.bam.bai
+        Loupe V(D)J Browser file:                         /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_ASB/vdj_b/vloupe.vloupe
+        AIRR Rearrangement TSV:                           /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_ASB/vdj_b/airr_rearrangement.tsv
+        Contig info (ProtoBuf format):                    /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_ASB/vdj_b/vdj_contig_info.pb
+        Inferred germline sequences:                      /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_ASB/vdj_b/donor_regions.fa
+      vdj_t:
+        Clonotype info:                                   null
+        Filtered contig sequences FASTA:                  null
+        Filtered contig sequences FASTQ:                  null
+        Filtered contigs (CSV):                           null
+        Barcodes that are declared to be targetted cells: null
+        Clonotype consensus FASTA:                        null
+        Clonotype consensus FASTA index:                  null
+        Contig-consensus alignments:                      null
+        Contig-consensus alignment index:                 null
+        Clonotype consensus annotations (CSV):            null
+        Concatenated reference sequences:                 null
+        Concatenated reference index:                     null
+        Contig-reference alignments:                      null
+        Contig-reference alignment index:                 null
+        Loupe V(D)J Browser file:                         null
+        AIRR Rearrangement TSV:                           null
+        Contig info (ProtoBuf format):                    null
+        Inferred germline sequences:                      null
+      vdj_t_gd:
+        Clonotype info:                                   null
+        Filtered contig sequences FASTA:                  null
+        Filtered contig sequences FASTQ:                  null
+        Filtered contigs (CSV):                           null
+        Barcodes that are declared to be targetted cells: null
+        Clonotype consensus FASTA:                        null
+        Clonotype consensus FASTA index:                  null
+        Contig-consensus alignments:                      null
+        Contig-consensus alignment index:                 null
+        Clonotype consensus annotations (CSV):            null
+        Concatenated reference sequences:                 null
+        Concatenated reference index:                     null
+        Contig-reference alignments:                      null
+        Contig-reference alignment index:                 null
+        Loupe V(D)J Browser file:                         null
+        AIRR Rearrangement TSV:                           null
+        Contig info (ProtoBuf format):                    null
+        Inferred germline sequences:                      null
+      antigen_analysis: null
+      web_summary:      /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_ASB/web_summary.html
+      metrics_summary:  /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_ASB/metrics_summary.csv
+    VA059_T8_GB:
+      count:
+        Secondary analysis output CSV:                                   /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_GB/count/analysis
+        Loupe Browser File:                                              /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_GB/count/sample_cloupe.cloupe
+        CRISPR analysis outputs:                                         null
+        Sample Antibody and Antigen aggregate barcodes:                  null
+        Feature reference:                                               /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_GB/count/feature_reference.csv
+        Sample barcodes:                                                 /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_GB/count/sample_filtered_barcodes.csv
+        Sample filtered feature-barcode matrices MEX:                    /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_GB/count/sample_filtered_feature_bc_matrix
+        Sample filtered feature-barcode matrices H5:                     /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_GB/count/sample_filtered_feature_bc_matrix.h5
+        Sample raw feature-barcode matrices MEX:                         null
+        Sample raw feature-barcode matrices H5:                          null
+        Sample raw probe-barcode matrix H5:                              null
+        BAM alignments for reads assigned to this sample:                /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_GB/count/sample_alignments.bam
+        BAM BAI index for reads assigned to this sample:                 /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_GB/count/sample_alignments.bam.bai
+        BAM CSI index for reads assigned to this sample:                 null
+        Per-molecule read information for reads assigned to this sample: /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_GB/count/sample_molecule_info.h5
+        Target Panel File:                                               null
+        Probe Set File:                                                  null
+        Outputs of cell annotation cell typing:                          null
+      vdj_b:
+        Clonotype info:                                   /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_GB/vdj_b/clonotypes.csv
+        Filtered contig sequences FASTA:                  /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_GB/vdj_b/filtered_contig.fasta
+        Filtered contig sequences FASTQ:                  /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_GB/vdj_b/filtered_contig.fastq
+        Filtered contigs (CSV):                           /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_GB/vdj_b/filtered_contig_annotations.csv
+        Barcodes that are declared to be targetted cells: /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_GB/vdj_b/cell_barcodes.json
+        Clonotype consensus FASTA:                        /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_GB/vdj_b/consensus.fasta
+        Clonotype consensus FASTA index:                  /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_GB/vdj_b/consensus.fasta.fai
+        Contig-consensus alignments:                      /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_GB/vdj_b/consensus.bam
+        Contig-consensus alignment index:                 /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_GB/vdj_b/consensus.bam.bai
+        Clonotype consensus annotations (CSV):            /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_GB/vdj_b/consensus_annotations.csv
+        Concatenated reference sequences:                 /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_GB/vdj_b/concat_ref.fasta
+        Concatenated reference index:                     /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_GB/vdj_b/concat_ref.fasta.fai
+        Contig-reference alignments:                      /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_GB/vdj_b/concat_ref.bam
+        Contig-reference alignment index:                 /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_GB/vdj_b/concat_ref.bam.bai
+        Loupe V(D)J Browser file:                         /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_GB/vdj_b/vloupe.vloupe
+        AIRR Rearrangement TSV:                           /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_GB/vdj_b/airr_rearrangement.tsv
+        Contig info (ProtoBuf format):                    /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_GB/vdj_b/vdj_contig_info.pb
+        Inferred germline sequences:                      /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_GB/vdj_b/donor_regions.fa
+      vdj_t:
+        Clonotype info:                                   null
+        Filtered contig sequences FASTA:                  null
+        Filtered contig sequences FASTQ:                  null
+        Filtered contigs (CSV):                           null
+        Barcodes that are declared to be targetted cells: null
+        Clonotype consensus FASTA:                        null
+        Clonotype consensus FASTA index:                  null
+        Contig-consensus alignments:                      null
+        Contig-consensus alignment index:                 null
+        Clonotype consensus annotations (CSV):            null
+        Concatenated reference sequences:                 null
+        Concatenated reference index:                     null
+        Contig-reference alignments:                      null
+        Contig-reference alignment index:                 null
+        Loupe V(D)J Browser file:                         null
+        AIRR Rearrangement TSV:                           null
+        Contig info (ProtoBuf format):                    null
+        Inferred germline sequences:                      null
+      vdj_t_gd:
+        Clonotype info:                                   null
+        Filtered contig sequences FASTA:                  null
+        Filtered contig sequences FASTQ:                  null
+        Filtered contigs (CSV):                           null
+        Barcodes that are declared to be targetted cells: null
+        Clonotype consensus FASTA:                        null
+        Clonotype consensus FASTA index:                  null
+        Contig-consensus alignments:                      null
+        Contig-consensus alignment index:                 null
+        Clonotype consensus annotations (CSV):            null
+        Concatenated reference sequences:                 null
+        Concatenated reference index:                     null
+        Contig-reference alignments:                      null
+        Contig-reference alignment index:                 null
+        Loupe V(D)J Browser file:                         null
+        AIRR Rearrangement TSV:                           null
+        Contig info (ProtoBuf format):                    null
+        Inferred germline sequences:                      null
+      antigen_analysis: null
+      web_summary:      /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_GB/web_summary.html
+      metrics_summary:  /project/meadlab/kgurashi/CG__250425_10x/Scripts/01_CellRanger/Run_S1146_L364C/Run_S1146_L364C/outs/per_sample_outs/VA059_T8_GB/metrics_summary.csv
+  }
+
+Waiting 6 seconds for UI to do final refresh.
+Pipestance completed successfully!
+
+2025-12-17 18:40:44 Shutting down.
+Saving pipestance info to "Run_S1146_L364C/Run_S1146_L364C.mri.tgz"
+Successfully processed: Run_S1146_L364C
+CBB Profiling started Wed Dec 17 18:39:34 2025
+SLURM_JOB_ID		4738111
+REQ_CPU_CORES		16
+REQ_MEMORY_GB		40.000000
+Starting profiling...
+
+                                                                                
+                                                                                
+                                   CPU (cores)                                  
+  16 +----------------------------------------------------------------------+   
+     |      +      +      +      +       +      +      +      +      +      |   
+     |                                                                      |   
+  14 |-+                                                                  +-|   
+     |                                                                      |   
+     |                                                                      |   
+  12 |-+                                                                  +-|   
+     |                                                                      |   
+     |                                                                      |   
+  10 |-+                                                                  +-|   
+     |                                                                      |   
+   8 |-+                                                                  +-|   
+     |                                                                      |   
+     |                                                                      |   
+   6 |-+                                                                  +-|   
+     |                                                                      |   
+     |                                                                      |   
+   4 |-+                                                                  +-|   
+     |                                                                      |   
+     |                                                                      |   
+   2 |-+                                                                  +-|   
+     |                                                                      |   
+     |      +      #  ### +      +       +      +      +      +      +      |   
+   0 +----------------------------------------------------------------------+   
+     0      50    100    150    200     250    300    350    400    450    500  
+                               Job profiling step                               
+                                                                                
+
+                                                                                
+                                                                                
+                                   Memory (GB)                                  
+  40 +----------------------------------------------------------------------+   
+     |      +      +      +      +       +      +      +      +      +      |   
+     |                                                                      |   
+  35 |-+                                                                  +-|   
+     |                                                                      |   
+     |                                                                      |   
+  30 |-+                                                                  +-|   
+     |                                                                      |   
+     |                                                                      |   
+  25 |-+                                                                  +-|   
+     |                                                                      |   
+  20 |-+                                                                  +-|   
+     |                                                                      |   
+     |                                                                      |   
+  15 |-+                                                                  +-|   
+     |                                                                      |   
+     |                                                                      |   
+  10 |-+                                                                  +-|   
+     |                                                                      |   
+     |                                                                      |   
+   5 |-+                                                                  +-|   
+     |                                                                      |   
+     |      +      +      +      +       +      +      +      +      +      |   
+   0 +----------------------------------------------------------------------+   
+     0      50    100    150    200     250    300    350    400    450    500  
+                               Job profiling step                               
+                                                                                
+
+                                                                                
+                                                                                
+                                   Data read (GB)                               
+   0.001 +------------------------------------------------------------------+   
+         |      + ######################################################### |   
+  0.0009 |-+      #                                                       #-|   
+         |        #                                                       # |   
+         |   ######                                                       # |   
+  0.0008 |-+ #                                                            #-|   
+         |   #                                                            # |   
+  0.0007 |-+ #                                                            #-|   
+         |   #                                                            # |   
+  0.0006 |-+ #                                                            #-|   
+         |   #                                                            # |   
+  0.0005 |-+ #                                                            #-|   
+         |   #                                                            # |   
+         |   #                                                            # |   
+  0.0004 |-+ #                                                            #-|   
+         |   #                                                            # |   
+  0.0003 |-+ #                                                            #-|   
+         |   #                                                            # |   
+  0.0002 |-+ #                                                            #-|   
+         |   #                                                            # |   
+         |   #                                                            # |   
+  0.0001 |-+ #                                                            #-|   
+         |   #  +     +      +      +      +     +      +      +     +    # |   
+       0 +------------------------------------------------------------------+   
+         0      50   100    150    200    250   300    350    400   450    500  
+                                 Job profiling step                             
+                                                                                
+
+                                                                                
+                                                                                
+                                  Data written (GB)                             
+  0.045 +-------------------------------------------------------------------+   
+        |      +      +     +      +      +      +      +     +      +      |   
+        |                                                  ################ |   
+   0.04 |-+                                               ##              #-|   
+        |                                               ###               # |   
+  0.035 |-+                  ############################                 #-|   
+        |                 ####                                            # |   
+        |                 #                                               # |   
+   0.03 |-+              ##                                               #-|   
+        |                #                                                # |   
+  0.025 |-+              #                                                #-|   
+        |                #                                                # |   
+        |                #                                                # |   
+   0.02 |-+              #                                                #-|   
+        |                #                                                # |   
+  0.015 |-+              #                                                #-|   
+        |                #                                                # |   
+        |               #                                                 # |   
+   0.01 |-+             #                                                 #-|   
+        |               #                                                 # |   
+  0.005 |-+           ###                                                 #-|   
+        |           ###                                                   # |   
+        |      +####  +     +      +      +      +      +     +      +    # |   
+      0 +-------------------------------------------------------------------+   
+        0      50    100   150    200    250    300    350   400    450    500  
+                                 Job profiling step                             
+                                                                                

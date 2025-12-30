@@ -1,0 +1,127 @@
+---
+title: "Figures"
+output: html_document
+date: format(Sys.time(), "%Y/%m/%d - %a")
+---
+
+# 1. Setup
+
+## - Setting work directories
+
+Defining work directory within rmarkdown chunk
+
+```{r setup, include=TRUE}
+local_wd_folder = dirname(dirname(dirname(rstudioapi::getSourceEditorContext()$path)))
+knitr::opts_knit$set(root.dir = local_wd_folder)
+```
+
+```{r}
+setwd(local_wd_folder)
+```
+
+Defining input data and output directories
+
+```{r}
+data_folder = paste0(local_wd_folder, '/Data/10x')
+```
+
+## - Setting seed
+
+This step ensures reproducibility in randomized processes
+
+```{r}
+set.seed(seed = 123, kind = "Mersenne-Twister", normal.kind = "Inversion")
+```
+
+## - Options
+
+```{r}
+options(Seurat.object.assay.version = 'v3')
+```
+
+## - Loading libraries
+
+```{r}
+library(SingleCellExperiment)
+library(Seurat)
+library(scuttle)
+library(scater)
+library(dplyr)
+library(R.utils)
+library(harmony)
+library(stringr)
+library(SingleR)
+library(scran)
+library(gridExtra)
+library(ggplot2)
+```
+
+## - Session Info
+
+```{r}
+writeLines(capture.output(sessionInfo()), file.path(dirname(rstudioapi::getSourceEditorContext()$path), '01_Session_Info.txt'))
+```
+
+# 2. INPUT: Importing pre-filtered samples
+
+```{r}
+Merged.SeuratObj <- readRDS(paste(data_folder, 'SC_Objects', 'QC_Processed.rds', sep = '/'))
+```
+
+# 3. RNA normalisation
+
+```{r}
+Merged.SeuratObj <- SCTransform(Merged.SeuratObj, verbose = FALSE)
+Merged.SeuratObj <- FindVariableFeatures(Merged.SeuratObj, assay = 'SCT')
+Merged.SeuratObj <- ScaleData(Merged.SeuratObj, assay = 'SCT')
+```
+
+# 4. Harmony Integration
+
+```{r}
+Merged.SeuratObj <- RunPCA(Merged.SeuratObj, verbose = FALSE, assay = 'SCT')
+
+# These are now standard steps in the Seurat workflow for visualization and clustering
+elbow_plot <- ElbowPlot(object = Merged.SeuratObj, ndims = 40)
+
+print(elbow_plot)
+```
+
+```{r}
+Merged.SeuratObj <- RunUMAP(Merged.SeuratObj, dims=1:15, reduction = 'pca', reduction.name = 'umap', reduction.key = 'umap', spread=1.5, min.dist=0.3, n.neighbors=50, metric="cosine", n.epochs = 200, negative.sample.rate = 5, return.model = T, seed.use = 123)
+```
+
+```{r}
+Merged.SeuratObj <- RunHarmony(Merged.SeuratObj, 
+                               group.by.vars = c('Identity'), 
+                               dims.use = 1:15, max_iter = 50)
+```
+
+```{r}
+Merged.SeuratObj <- RunUMAP(Merged.SeuratObj, dims=1:15, reduction = 'harmony', reduction.name = 'h_umap', reduction.key = 'h_umap', spread=1.5, min.dist=0.3, n.neighbors=50, metric="cosine", n.epochs = 200, negative.sample.rate = 5, return.model = T, seed.use = 123)
+```
+
+```{r}
+# Integrated UMAP
+
+plot1 <- DimPlot(Merged.SeuratObj, reduction = 'h_umap', group.by = 'Donor')
+plot2 <- DimPlot(Merged.SeuratObj, reduction = 'h_umap', group.by = 'Identity', label = T)
+
+plot1 + plot2
+
+# Non-integrated UMAP for reference
+
+plot1 <- DimPlot(Merged.SeuratObj, reduction = 'umap', group.by = 'Donor')
+plot2 <- DimPlot(Merged.SeuratObj, reduction = 'umap', group.by = 'Identity', label = T)
+
+plot1 + plot2
+```
+
+# 5. Saving integrated seurat object
+
+```{r}
+saveRDS(object = Merged.SeuratObj, file = paste(data_folder, 'SC_Objects', 'Integrated.rds', sep = '/'))
+```
+
+
+
