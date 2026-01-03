@@ -77,6 +77,31 @@ Run_S1081_L364A.SeuratObj$Timepoint <- 'T5'
 Run_S1146_L364B.SeuratObj$Timepoint <- 'T8'
 Run_S1146_L364C.SeuratObj$Timepoint <- 'T8'
 Run_S1146_L364D.SeuratObj$Timepoint <- 'T5'
+
+Run_S1081_L364A.SeuratObj@meta.data[names(Run_S1081_L364A.SeuratObj$Identity)[str_detect(Run_S1081_L364A.SeuratObj$Identity, 
+                                                                               pattern = '_GB')],'Sort'] <- 'GB'
+Run_S1081_L364A.SeuratObj@meta.data[names(Run_S1081_L364A.SeuratObj$Identity)[str_detect(Run_S1081_L364A.SeuratObj$Identity, 
+                                                                               pattern = '_ASB')],'Sort'] <- 'ASB'
+Run_S1081_L364A.SeuratObj@meta.data[names(Run_S1081_L364A.SeuratObj$Identity)[str_detect(Run_S1081_L364A.SeuratObj$Identity, 
+                                                                               pattern = '_Ambiguous')],'Sort'] <- '_Ambiguous'
+Run_S1146_L364B.SeuratObj@meta.data[names(Run_S1146_L364B.SeuratObj$Identity)[str_detect(Run_S1146_L364B.SeuratObj$Identity, 
+                                                                               pattern = '_GB')],'Sort'] <- 'GB'
+Run_S1146_L364B.SeuratObj@meta.data[names(Run_S1146_L364B.SeuratObj$Identity)[str_detect(Run_S1146_L364B.SeuratObj$Identity, 
+                                                                               pattern = '_ASB')],'Sort'] <- 'ASB'
+Run_S1146_L364B.SeuratObj@meta.data[names(Run_S1146_L364B.SeuratObj$Identity)[str_detect(Run_S1146_L364B.SeuratObj$Identity, 
+                                                                               pattern = '_Ambiguous')],'Sort'] <- '_Ambiguous'
+Run_S1146_L364C.SeuratObj@meta.data[names(Run_S1146_L364C.SeuratObj$Identity)[str_detect(Run_S1146_L364C.SeuratObj$Identity, 
+                                                                               pattern = '_GB')],'Sort'] <- 'GB'
+Run_S1146_L364C.SeuratObj@meta.data[names(Run_S1146_L364C.SeuratObj$Identity)[str_detect(Run_S1146_L364C.SeuratObj$Identity, 
+                                                                               pattern = '_ASB')],'Sort'] <- 'ASB'
+Run_S1146_L364C.SeuratObj@meta.data[names(Run_S1146_L364C.SeuratObj$Identity)[str_detect(Run_S1146_L364C.SeuratObj$Identity, 
+                                                                               pattern = '_Ambiguous')],'Sort'] <- '_Ambiguous'
+Run_S1146_L364D.SeuratObj@meta.data[names(Run_S1146_L364D.SeuratObj$Identity)[str_detect(Run_S1146_L364D.SeuratObj$Identity, 
+                                                                               pattern = '_GB')],'Sort'] <- 'GB'
+Run_S1146_L364D.SeuratObj@meta.data[names(Run_S1146_L364D.SeuratObj$Identity)[str_detect(Run_S1146_L364D.SeuratObj$Identity, 
+                                                                               pattern = '_ASB')],'Sort'] <- 'ASB'
+Run_S1146_L364D.SeuratObj@meta.data[names(Run_S1146_L364D.SeuratObj$Identity)[str_detect(Run_S1146_L364D.SeuratObj$Identity, 
+                                                                               pattern = '_Ambiguous')],'Sort'] <- '_Ambiguous'
 ```
 
 ```{r}
@@ -144,7 +169,7 @@ gtf <- fread("gunzip -c /project/meadlab/kgurashi/CG__250425_10x/Data/10x/Resour
 gene_names <- gsub('.*gene_name "([^"]+)".*', '\\1', gtf$V9)
 
 # Filter for immunoglobulin genes
-ig_genes <- unique(gene_names[grepl("^IG[HKL][VDJ]|^IG[HKL]C|^AC233755|^IGLL", gene_names)])
+ig_genes <- unique(gene_names[grepl("^IG[HKL][VDJ]|^IG[HKL]C|^AC233755|^JCHAIN|^IGLL", gene_names)])
 
 # Print results
 print(sort(ig_genes))
@@ -160,9 +185,9 @@ VarGenes <- SelectIntegrationFeatures(
   fvf.nfeatures = 4000,
 )
 
-IG_genes <- unlist(lapply(c("^IGHV", "^IGLV", "^IGLC", "^IGKV", "^IGKC", "^AC233755"), grep, VarGenes, value=T))
+#IG_genes <- unlist(lapply(c("^IGHV", "^IGLV", "^IGLC", "^IGKV", "^IGKC", "^AC233755"), grep, VarGenes, value=T))
 
-VarGenes.No.IG <- VarGenes[grep(FALSE, VarGenes %in% IG_genes)][1:3000]
+VarGenes.No.IG <- VarGenes[grep(FALSE, VarGenes %in% ig_genes)][1:3000]
 ```
 
 ```{r}
@@ -226,31 +251,31 @@ print(elbow_plot)
 ```{r}
 seed.use = 123
 
-Merged.SeuratObj <- RunUMAP(Merged.SeuratObj, dims=1:9, reduction = 'pca', 
+Merged.SeuratObj <- RunUMAP(Merged.SeuratObj, dims=1:11, reduction = 'pca', 
                             reduction.name = 'umap', reduction.key = 'umap', 
-                            spread=0.15, min.dist=0.3, n.neighbors=150, 
+                            spread=0.35, min.dist=0.75, n.neighbors=50, 
                             n.epochs = 200, return.model = T, seed.use = 123)
 ```
 
 ```{r}
 seed.use = 123
 
-#Merged.SeuratObj <- RunHarmony(Merged.SeuratObj, 
-#                               group.by.vars = c('Timepoint', 'Donor', 'Run', 'Identity'), 
-#                               lambda=c(2,1,2,1),
-#                               dims.use = 1:9, max_iter = 50)
-
 Merged.SeuratObj <- RunHarmony(Merged.SeuratObj, 
-                               group.by.vars = 'Identity',
-                               dims.use = 1:9, max_iter = 50)
+                               group.by.vars = c('Timepoint', 'Donor', 'Identity'), 
+                               lambda=c(0.5,1,1),
+                               dims.use = 1:11, max_iter = 50)
+
+#Merged.SeuratObj <- RunHarmony(Merged.SeuratObj, 
+#                               group.by.vars = 'Identity',
+#                               dims.use = 1:9, max_iter = 50)
 ```
 
 ```{r}
 seed.use = 123
 
-Merged.SeuratObj <- RunUMAP(Merged.SeuratObj, dims=1:9, reduction = 'harmony', 
+Merged.SeuratObj <- RunUMAP(Merged.SeuratObj, dims=1:11, reduction = 'harmony', 
                             reduction.name = 'h_umap', reduction.key = 'h_umap', 
-                            spread=0.15, min.dist=0.3, n.neighbors=150, 
+                            spread=0.35, min.dist=0.75, n.neighbors=50, 
                             n.epochs = 200, return.model = T, seed.use = 123)
 ```
 

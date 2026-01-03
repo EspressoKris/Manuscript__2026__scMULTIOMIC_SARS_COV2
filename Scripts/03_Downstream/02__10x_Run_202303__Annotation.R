@@ -114,7 +114,7 @@ ComplexHeatmap::Heatmap(Corr)
 
 ### Removing cells poorly represented or outliers
 
-labels_with_enough_cells = names(table(Query.SeuratObj$Combined_celltype_annotation))[grep('FALSE', table(Query.SeuratObj$Combined_celltype_annotation) < 30)]
+labels_with_enough_cells = names(table(Query.SeuratObj$Combined_celltype_annotation))[grep('FALSE', table(Query.SeuratObj$Combined_celltype_annotation) < 20)]
 
 Query.SeuratObj = subset(Query.SeuratObj,
                          cells = WhichCells(Query.SeuratObj, expression = Combined_celltype_annotation %in% labels_with_enough_cells))
@@ -154,152 +154,152 @@ dev.off()
 # Finding and removing contamination cells
 
 # Define the file path
-file_path <-  paste(results_folder, 'CB_Noise_Contamination.csv', sep = '/')
+#file_path <-  paste(results_folder, 'CB_Noise_Contamination.csv', sep = '/')
 
 # Check if the file exists
-if (file.exists(file_path)) {
+#if (file.exists(file_path)) {
   # Import unwanted_cell_names from the file
-  unwanted_cell_names <- read.csv(file_path, header = FALSE, stringsAsFactors = FALSE)[, 1]
-} else {
-  # Extract the UMAP embeddings and metadata from the Seurat object
-  umap_data <- as.data.frame(Query.SeuratObj@reductions$h_umap@cell.embeddings)
-  umap_data$celltype <- Query.SeuratObj$Combined_celltype_annotation
+#  unwanted_cell_names <- read.csv(file_path, header = FALSE, stringsAsFactors = FALSE)[, 1]
+#} else {
+#  # Extract the UMAP embeddings and metadata from the Seurat object
+#  umap_data <- as.data.frame(Query.SeuratObj@reductions$h_umap@cell.embeddings)
+#  umap_data$celltype <- Query.SeuratObj$Combined_celltype_annotation
   
-  # Rename columns for consistency (if needed)
-  colnames(umap_data) <- c("UMAP_1", "UMAP_2", "celltype")
+#  # Rename columns for consistency (if needed)
+#  colnames(umap_data) <- c("UMAP_1", "UMAP_2", "celltype")
   
-  # Filter cells for group1
-  group1 <- subset(umap_data, UMAP_2 >= -3 & UMAP_2 <= 3 & UMAP_1 >= -11 & UMAP_1 <= -7)
+#  # Filter cells for group1
+#  group1 <- subset(umap_data, UMAP_2 >= -3 & UMAP_2 <= 3 & UMAP_1 >= -11 & UMAP_1 <= -7)
   
-  # Filter cells for group2
-  group2 <- subset(umap_data, UMAP_2 >= -3 & UMAP_2 <= 5 & UMAP_1 >= 11 & UMAP_1 <= 15)
+#  # Filter cells for group2
+#  group2 <- subset(umap_data, UMAP_2 >= -3 & UMAP_2 <= 5 & UMAP_1 >= 11 & UMAP_1 <= 15)
   
-  # Combine both groups into a single data frame
-  unwanted_cells <- rbind(group1, group2)
+#  # Combine both groups into a single data frame
+#  unwanted_cells <- rbind(group1, group2)
   
-  # Get the cell names of unwanted cells
-  unwanted_cell_names <- rownames(unwanted_cells)
+#  # Get the cell names of unwanted cells
+#  unwanted_cell_names <- rownames(unwanted_cells)
   
-  # Write the unwanted cell names to the file
-  write.table(x = unwanted_cell_names, 
-              file = file_path, 
-              quote = FALSE, row.names = FALSE, sep = ',', col.names = FALSE)
-}
+#  # Write the unwanted cell names to the file
+#  write.table(x = unwanted_cell_names, 
+#              file = file_path, 
+#              quote = FALSE, row.names = FALSE, sep = ',', col.names = FALSE)
+#}
 
-# Subset the Seurat object to exclude unwanted cells
-Query.SeuratObj_filtered <- subset(Query.SeuratObj, cells = setdiff(Cells(Query.SeuratObj), unwanted_cell_names))
+## Subset the Seurat object to exclude unwanted cells
+#Query.SeuratObj_filtered <- subset(Query.SeuratObj, cells = setdiff(Cells(Query.SeuratObj), unwanted_cell_names))
 
-# Verify the subsetted object
-print(Query.SeuratObj_filtered)
+## Verify the subsetted object
+#print(Query.SeuratObj_filtered)
 
-# Plot the filtered Seurat object
-DimPlot(Query.SeuratObj_filtered, 
-        reduction = 'h_umap', 
-        group.by = 'Combined_celltype_annotation', 
-        pt.size = 1) + scale_color_manual(values = c('Naive' = "#B15928",
-                                                     "Classical_Memory" = "#6A3D9A",
-                                                     "DN" = "#FDBF6F",
-                                                     "IgM_Memory" = "#33A02C",
-                                                     "CD56dimCD16+ NK cells" = 'pink',
-                                                     "Mature naive B cells" = 'blue',
-                                                     "Nonswitched memory B cells" = "darkgreen",
-                                                     "Class switched memory B cells" = "#E31A1C",
-                                                     "Transitional" = "#A6CEE3")) + 
-  ylab('UMAP-2') + xlab('UMAP-1') + ggtitle('Cell types')
+## Plot the filtered Seurat object
+#DimPlot(Query.SeuratObj_filtered, 
+#        reduction = 'h_umap', 
+#        group.by = 'Combined_celltype_annotation', 
+#        pt.size = 1) + scale_color_manual(values = c('Naive' = "#B15928",
+#                                                     "Classical_Memory" = "#6A3D9A",
+#                                                     "DN" = "#FDBF6F",
+#                                                     "IgM_Memory" = "#33A02C",
+#                                                     "CD56dimCD16+ NK cells" = 'pink',
+#                                                     "Mature naive B cells" = 'blue',
+#                                                     "Nonswitched memory B cells" = "darkgreen",
+#                                                     "Class switched memory B cells" = "#E31A1C",
+#                                                     "Transitional" = "#A6CEE3")) + 
+#  ylab('UMAP-2') + xlab('UMAP-1') + ggtitle('Cell types')
 
-# RNA normalisation
+## RNA normalisation
 
-DefaultAssay(Query.SeuratObj_filtered) <- 'RNA'
-Query.SeuratObj_filtered@assays$SCT <- NULL
+#DefaultAssay(Query.SeuratObj_filtered) <- 'RNA'
+#Query.SeuratObj_filtered@assays$SCT <- NULL
 
-Query.SeuratObj_filtered <- SCTransform(Query.SeuratObj_filtered, verbose = FALSE)
-Query.SeuratObj_filtered <- FindVariableFeatures(Query.SeuratObj_filtered, assay = 'SCT')
-Query.SeuratObj_filtered <- ScaleData(Query.SeuratObj_filtered, assay = 'SCT')
+#Query.SeuratObj_filtered <- SCTransform(Query.SeuratObj_filtered, verbose = FALSE)
+#Query.SeuratObj_filtered <- FindVariableFeatures(Query.SeuratObj_filtered, assay = 'SCT')
+#Query.SeuratObj_filtered <- ScaleData(Query.SeuratObj_filtered, assay = 'SCT')
 
-# UMAP non-integrated
+## UMAP non-integrated
 
-Query.SeuratObj_filtered <- RunUMAP(Query.SeuratObj_filtered, dims=1:12, reduction = 'pca', 
-                                    reduction.name = 'umap', reduction.key = 'umap', 
-                                    spread=1.5, min.dist=0.3, n.neighbors=50, 
-                                    metric="cosine", n.epochs = 200, 
-                                    negative.sample.rate = 5, return.model = T, seed.use = 123)
+#Query.SeuratObj_filtered <- RunUMAP(Query.SeuratObj_filtered, dims=1:12, reduction = 'pca', 
+#                                    reduction.name = 'umap', reduction.key = 'umap', 
+#                                    spread=1.5, min.dist=0.3, n.neighbors=50, 
+#                                    metric="cosine", n.epochs = 200, 
+#                                    negative.sample.rate = 5, return.model = T, seed.use = 123)
+#
+## Harmony integration
 
-# Harmony integration
+#Query.SeuratObj_filtered <- RunPCA(Query.SeuratObj_filtered, 
+#                                   verbose = FALSE, assay = 'SCT')
 
-Query.SeuratObj_filtered <- RunPCA(Query.SeuratObj_filtered, 
-                                   verbose = FALSE, assay = 'SCT')
+## These are now standard steps in the Seurat workflow for visualization and clustering
+#elbow_plot <- ElbowPlot(object = Query.SeuratObj_filtered, ndims = 40)
 
-# These are now standard steps in the Seurat workflow for visualization and clustering
-elbow_plot <- ElbowPlot(object = Query.SeuratObj_filtered, ndims = 40)
+#print(elbow_plot)
 
-print(elbow_plot)
+#Query.SeuratObj_filtered <- RunHarmony(Query.SeuratObj_filtered, 
+#                                       group.by.vars = c('Identity'), 
+#                                       dims.use = 1:12, max_iter = 50)
 
-Query.SeuratObj_filtered <- RunHarmony(Query.SeuratObj_filtered, 
-                                       group.by.vars = c('Identity'), 
-                                       dims.use = 1:12, max_iter = 50)
+## UMAP integrated
 
-# UMAP integrated
+#Query.SeuratObj_filtered <- RunUMAP(Query.SeuratObj_filtered, dims=1:12, 
+#                                    reduction = 'harmony', reduction.name = 'h_umap', 
+#                                    reduction.key = 'h_umap', spread=1.5, 
+#                                   min.dist=0.3, n.neighbors=50, metric="cosine", 
+#                                    n.epochs = 200, negative.sample.rate = 5, 
+#                                    return.model = T, seed.use = 123)
+#
+## Check umap results
 
-Query.SeuratObj_filtered <- RunUMAP(Query.SeuratObj_filtered, dims=1:12, 
-                                    reduction = 'harmony', reduction.name = 'h_umap', 
-                                    reduction.key = 'h_umap', spread=1.5, 
-                                    min.dist=0.3, n.neighbors=50, metric="cosine", 
-                                    n.epochs = 200, negative.sample.rate = 5, 
-                                    return.model = T, seed.use = 123)
+#cells <- colnames(Query.SeuratObj_filtered)
+#cell_types <- Query.SeuratObj_filtered@meta.data[cells, 'Combined_celltype_annotation']
+#cells_highlight <- split(cells, cell_types)
 
-# Check umap results
+#DimPlot(Query.SeuratObj_filtered, reduction = 'h_umap', cells.highlight = cells_highlight,
+#        group.by='Combined_celltype_annotation', 
+#        label = F, pt.size = 1.4, sizes.highlight = 0.9, alpha=0.8, order = T,
+#        repel = T) + theme_void() + scale_color_manual(values = c('Naive' = "#c97c5d",
+#                                                                  "Classical_Memory" = "#bf0603",
+#                                                                  "DN" = "grey40",
+#                                                                  "IgM_Memory" = "pink",
+#                                                                  "CD56dimCD16+ NK cells" = 'orange',
+#                                                                  "Mature naive B cells" = '#593d3b',
+#                                                                  "Nonswitched memory B cells" = "#96c7c6",
+#                                                                  "Class switched memory B cells" = "#004e89",
+#                                                                  "Transitional" = "darkgreen"),
+#                                                       na.value = '#DCDADB') + 
+#  theme(plot.title = element_text(hjust=0.5, vjust = 0.5),
+#        plot.subtitle = element_text(hjust=0.5, vjust = 0.5),
+#        legend.position = 'bottom') +
+#  ggtitle(label = 'ALL', subtitle = paste('N = ', length(cells), sep = ''))
 
-cells <- colnames(Query.SeuratObj_filtered)
-cell_types <- Query.SeuratObj_filtered@meta.data[cells, 'Combined_celltype_annotation']
-cells_highlight <- split(cells, cell_types)
+## Result with a chosen patient
 
-DimPlot(Query.SeuratObj_filtered, reduction = 'h_umap', cells.highlight = cells_highlight,
-        group.by='Combined_celltype_annotation', 
-        label = F, pt.size = 1.4, sizes.highlight = 0.9, alpha=0.8, order = T,
-        repel = T) + theme_void() + scale_color_manual(values = c('Naive' = "#c97c5d",
-                                                                  "Classical_Memory" = "#bf0603",
-                                                                  "DN" = "grey40",
-                                                                  "IgM_Memory" = "pink",
-                                                                  "CD56dimCD16+ NK cells" = 'orange',
-                                                                  "Mature naive B cells" = '#593d3b',
-                                                                  "Nonswitched memory B cells" = "#96c7c6",
-                                                                  "Class switched memory B cells" = "#004e89",
-                                                                  "Transitional" = "darkgreen"),
-                                                       na.value = '#DCDADB') + 
-  theme(plot.title = element_text(hjust=0.5, vjust = 0.5),
-        plot.subtitle = element_text(hjust=0.5, vjust = 0.5),
-        legend.position = 'bottom') +
-  ggtitle(label = 'ALL', subtitle = paste('N = ', length(cells), sep = ''))
+#sample <- 'VA013_ASB'
 
-# Result with a chosen patient
+#cells <- WhichCells(Query.SeuratObj_filtered, expression = Identity %in% sample)
+#cell_types <- Query.SeuratObj_filtered@meta.data[cells, 'Combined_celltype_annotation']
+#cells_highlight <- split(cells, cell_types)
 
-sample <- 'VA013_ASB'
+#DimPlot(Query.SeuratObj_filtered, reduction = 'h_umap', cells.highlight = cells_highlight,
+#        group.by='Combined_celltype_annotation', 
+#        label = F, pt.size = 1.4, sizes.highlight = 0.9, alpha=0.8, order = T,
+#        repel = T) + theme_void() + scale_color_manual(values = c('Naive' = "#c97c5d",
+#                                                                  "Classical_Memory" = "#bf0603",
+#                                                                  "DN" = "grey40",
+#                                                                  "IgM_Memory" = "pink",
+#                                                                  "CD56dimCD16+ NK cells" = 'orange',
+#                                                                  "Mature naive B cells" = '#593d3b',
+#                                                                  "Nonswitched memory B cells" = "#96c7c6",
+#                                                                  "Class switched memory B cells" = "#004e89",
+#                                                                  "Transitional" = "darkgreen"),
+#                                                       na.value = '#DCDADB') + 
+#  theme(plot.title = element_text(hjust=0.5, vjust = 0.5),
+#        plot.subtitle = element_text(hjust=0.5, vjust = 0.5),
+#        legend.position = 'none') +
+#  ggtitle(label = sprintf('%s', sample), subtitle = paste('N = ', length(cells), sep = ''))
 
-cells <- WhichCells(Query.SeuratObj_filtered, expression = Identity %in% sample)
-cell_types <- Query.SeuratObj_filtered@meta.data[cells, 'Combined_celltype_annotation']
-cells_highlight <- split(cells, cell_types)
+#### Saving final results
 
-DimPlot(Query.SeuratObj_filtered, reduction = 'h_umap', cells.highlight = cells_highlight,
-        group.by='Combined_celltype_annotation', 
-        label = F, pt.size = 1.4, sizes.highlight = 0.9, alpha=0.8, order = T,
-        repel = T) + theme_void() + scale_color_manual(values = c('Naive' = "#c97c5d",
-                                                                  "Classical_Memory" = "#bf0603",
-                                                                  "DN" = "grey40",
-                                                                  "IgM_Memory" = "pink",
-                                                                  "CD56dimCD16+ NK cells" = 'orange',
-                                                                  "Mature naive B cells" = '#593d3b',
-                                                                  "Nonswitched memory B cells" = "#96c7c6",
-                                                                  "Class switched memory B cells" = "#004e89",
-                                                                  "Transitional" = "darkgreen"),
-                                                       na.value = '#DCDADB') + 
-  theme(plot.title = element_text(hjust=0.5, vjust = 0.5),
-        plot.subtitle = element_text(hjust=0.5, vjust = 0.5),
-        legend.position = 'none') +
-  ggtitle(label = sprintf('%s', sample), subtitle = paste('N = ', length(cells), sep = ''))
-
-### Saving final results
-
-saveRDS(object = Query.SeuratObj_filtered, 
+saveRDS(object = Query.SeuratObj, 
         file = paste(data_folder, 'SC_Objects', 'Annotated.rds', sep = '/'))
 
 ## - Session Info
