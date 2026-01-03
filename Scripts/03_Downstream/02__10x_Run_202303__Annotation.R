@@ -20,10 +20,6 @@ library(ComplexHeatmap)
 library(ggplot2)
 library(harmony)
 
-## - Session Info
-
-writeLines(capture.output(sessionInfo()), file.path(dirname(rstudioapi::getSourceEditorContext()$path), '02_Session_Info.txt'))
-
 ## - Options
 
 BPPARAM <- BiocParallel::MulticoreParam(workers = parallel::detectCores()-2)
@@ -141,6 +137,12 @@ DimPlot(Query.SeuratObj,
                                                      "Mature naive B cells" = 'blue',
                                                      "Nonswitched memory B cells" = "darkgreen",
                                                      "Class switched memory B cells" = "#E31A1C",
+                                                     "CD4+ naive T cells" = "yellow",
+                                                     "CD4+ memory T cells" = "yellow",
+                                                     "CD8+ naive T cells" = "cyan",
+                                                     "CD8+ effector memory T cells" = "cyan",
+                                                     "Non-classical monocytes" = "orange",
+                                                     "Classical Monocytes" = "orange",
                                                      "Transitional" = "#A6CEE3")) + ylab('UMAP-2') + xlab('UMAP-1') + ggtitle('Cell types')
 
 dev.off()
@@ -300,4 +302,7 @@ DimPlot(Query.SeuratObj_filtered, reduction = 'h_umap', cells.highlight = cells_
 saveRDS(object = Query.SeuratObj_filtered, 
         file = paste(data_folder, 'SC_Objects', 'Annotated.rds', sep = '/'))
 
+## - Session Info
+
+writeLines(capture.output(sessionInfo()), file.path(dirname(rstudioapi::getSourceEditorContext()$path), '02_Session_Info.txt'))
 

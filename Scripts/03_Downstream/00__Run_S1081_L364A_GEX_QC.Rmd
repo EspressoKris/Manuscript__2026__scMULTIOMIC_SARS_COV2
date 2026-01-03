@@ -52,7 +52,7 @@ library(scDblFinder)
 ```{r}
 data_folder = paste0(local_wd_folder, '/Data/10x')
 results_folder = paste0(local_wd_folder, '/Results/10x')
-Input_data = paste(data_folder, '/Per_Sample_Demultiplexed_Mapped_Data', sep = '')
+Input_data = paste(data_folder, '/Per_ChromiumLane_Mapped_Data/Run_S1081_L364A/outs/per_sample_outs', sep = '')
 
 dir.create(path = paste(data_folder, '/SC_Objects', sep = ''), showWarnings = F)
 dir.create(path = paste(results_folder, '/QC', sep = ''), showWarnings = F)
@@ -124,7 +124,7 @@ pattern <- paste0("(", paste(c("VA013_T5", "VA022_T5", "VA035_T5"), collapse = "
 samples_of_interest <- all_samples[grepl(pattern, all_samples)]
 
 for (n in 1:length(samples_of_interest)) {
-  sample_list[[basename(samples_of_interest[[n]])]] <- samples_of_interest[[n]]
+  sample_list[[basename(samples_of_interest[[n]])]] <- file.path(samples_of_interest[[n]], 'count/sample_filtered_feature_bc_matrix')
 }
 ```
 
@@ -171,6 +171,8 @@ head(colnames(GEX_count_matrices[[1]]))
 We will now use these matrices to generate individual Seurat objects.
   
 ```{r}
+seurat_objects <- list()
+
 for (count.mat in names(GEX_count_matrices)) {
   
   index <- match(count.mat, names(GEX_count_matrices))

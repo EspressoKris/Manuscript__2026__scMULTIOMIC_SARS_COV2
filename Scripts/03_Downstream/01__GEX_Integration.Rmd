@@ -1,0 +1,290 @@
+---
+title: "Figures"
+output: html_document
+date: format(Sys.time(), "%Y/%m/%d - %a")
+---
+
+# 1. Setup
+
+## - Setting work directories
+
+Defining work directory within rmarkdown chunk
+
+```{r setup, include=TRUE}
+local_wd_folder = dirname(dirname(dirname(rstudioapi::getSourceEditorContext()$path)))
+knitr::opts_knit$set(root.dir = local_wd_folder)
+```
+
+```{r}
+setwd(local_wd_folder)
+```
+
+Defining input data and output directories
+
+```{r}
+data_folder = paste0(local_wd_folder, '/Data/10x')
+```
+
+## - Setting seed
+
+This step ensures reproducibility in randomized processes
+
+```{r}
+set.seed(seed = 123, kind = "Mersenne-Twister", normal.kind = "Inversion")
+```
+
+## - Options
+
+```{r}
+options(Seurat.object.assay.version = 'v3')
+```
+
+## - Loading libraries
+
+```{r}
+library(SingleCellExperiment)
+library(Seurat)
+library(scuttle)
+library(scater)
+library(dplyr)
+library(R.utils)
+library(harmony)
+library(stringr)
+library(SingleR)
+library(scran)
+library(gridExtra)
+library(ggplot2)
+```
+
+# 2. INPUT: Importing pre-filtered samples
+
+```{r}
+Run_S1081_L364A.SeuratObj <- readRDS(paste(data_folder, 'SC_Objects', 'Run_S1081_L364A_QC_Processed.rds', sep = '/'))
+Run_S1146_L364B.SeuratObj <- readRDS(paste(data_folder, 'SC_Objects', 'Run_S1146_L364B_QC_Processed.rds', sep = '/'))
+Run_S1146_L364C.SeuratObj <- readRDS(paste(data_folder, 'SC_Objects', 'Run_S1146_L364C_QC_Processed.rds', sep = '/'))
+Run_S1146_L364D.SeuratObj <- readRDS(paste(data_folder, 'SC_Objects', 'Run_S1146_L364D_QC_Processed.rds', sep = '/'))
+```
+
+# 3. RNA normalisation
+
+```{r}
+Run_S1081_L364A.SeuratObj$Run <- 'S1081_L364A'
+Run_S1146_L364B.SeuratObj$Run <- 'S1146_L364B'
+Run_S1146_L364C.SeuratObj$Run <- 'S1146_L364C'
+Run_S1146_L364D.SeuratObj$Run <- 'S1146_L364D'
+
+Run_S1081_L364A.SeuratObj$Timepoint <- 'T5'
+Run_S1146_L364B.SeuratObj$Timepoint <- 'T8'
+Run_S1146_L364C.SeuratObj$Timepoint <- 'T8'
+Run_S1146_L364D.SeuratObj$Timepoint <- 'T5'
+```
+
+```{r}
+RNA.shared_genes <- Reduce(intersect, 
+                           list(rownames(Run_S1081_L364A.SeuratObj@assays$RNA@counts),
+                                rownames(Run_S1146_L364B.SeuratObj@assays$RNA@counts),
+                                rownames(Run_S1146_L364C.SeuratObj@assays$RNA@counts),
+                                rownames(Run_S1146_L364D.SeuratObj@assays$RNA@counts)
+                                )
+                           )
+
+cat("Subsetting RNA matrices to shared genes...\n")
+
+Run_S1081_L364A.SeuratObj <- subset(
+  Run_S1081_L364A.SeuratObj, 
+  features = RNA.shared_genes
+)
+
+Run_S1146_L364B.SeuratObj <- subset(
+  Run_S1146_L364B.SeuratObj, 
+  features = RNA.shared_genes
+)
+
+Run_S1146_L364C.SeuratObj <- subset(
+  Run_S1146_L364C.SeuratObj, 
+  features = RNA.shared_genes
+)
+
+Run_S1146_L364D.SeuratObj <- subset(
+  Run_S1146_L364D.SeuratObj, 
+  features = RNA.shared_genes
+)
+```
+
+```{r}
+Run_S1081_L364A.SeuratObj <- SCTransform(Run_S1081_L364A.SeuratObj, 
+                                         return.only.var.genes = F,
+                                         assay = 'RNA', new.assay.name = 'SCT', 
+                                         variable.features.n = 4000)
+
+Run_S1146_L364B.SeuratObj <- SCTransform(Run_S1146_L364B.SeuratObj, 
+                                         return.only.var.genes = F,
+                                         assay = 'RNA', new.assay.name = 'SCT', 
+                                         variable.features.n = 4000)
+
+Run_S1146_L364C.SeuratObj <- SCTransform(Run_S1146_L364C.SeuratObj, 
+                                         return.only.var.genes = F,
+                                         assay = 'RNA', new.assay.name = 'SCT', 
+                                         variable.features.n = 4000)
+
+Run_S1146_L364D.SeuratObj <- SCTransform(Run_S1146_L364D.SeuratObj, 
+                                         return.only.var.genes = F,
+                                         assay = 'RNA', new.assay.name = 'SCT', 
+                                         variable.features.n = 4000)
+```
+
+```{r}
+library(data.table)
+
+# Read GTF file
+gtf <- fread("gunzip -c /project/meadlab/kgurashi/CG__250425_10x/Data/10x/Resources/Genomes/refdata-gex-GRCh38-2024-A/genes/genes.gtf.gz | grep -w gene", 
+             sep = "\t", header = FALSE)
+
+# Extract gene_name from attributes column (V9)
+gene_names <- gsub('.*gene_name "([^"]+)".*', '\\1', gtf$V9)
+
+# Filter for immunoglobulin genes
+ig_genes <- unique(gene_names[grepl("^IG[HKL][VDJ]|^IG[HKL]C|^AC233755|^IGLL", gene_names)])
+
+# Print results
+print(sort(ig_genes))
+
+VarGenes <- SelectIntegrationFeatures(
+  list(Run_S1081_L364A.SeuratObj, 
+       Run_S1146_L364B.SeuratObj,
+       Run_S1146_L364C.SeuratObj,
+       Run_S1146_L364D.SeuratObj),
+  nfeatures = 4000,
+  assay = rep('SCT',4),
+  verbose = TRUE,
+  fvf.nfeatures = 4000,
+)
+
+IG_genes <- unlist(lapply(c("^IGHV", "^IGLV", "^IGLC", "^IGKV", "^IGKC", "^AC233755"), grep, VarGenes, value=T))
+
+VarGenes.No.IG <- VarGenes[grep(FALSE, VarGenes %in% IG_genes)][1:3000]
+```
+
+```{r}
+Run_S1081_L364A.SeuratObj <- SCTransform(Run_S1081_L364A.SeuratObj, 
+                                         return.only.var.genes = T,
+                                         assay = 'RNA', new.assay.name = 'SCT', 
+                                         residual.features = VarGenes.No.IG)
+
+Run_S1146_L364B.SeuratObj <- SCTransform(Run_S1146_L364B.SeuratObj, 
+                                         return.only.var.genes = T,
+                                         assay = 'RNA', new.assay.name = 'SCT', 
+                                         residual.features = VarGenes.No.IG)
+
+Run_S1146_L364C.SeuratObj <- SCTransform(Run_S1146_L364C.SeuratObj, 
+                                         return.only.var.genes = T,
+                                         assay = 'RNA', new.assay.name = 'SCT', 
+                                         residual.features = VarGenes.No.IG)
+
+Run_S1146_L364D.SeuratObj <- SCTransform(Run_S1146_L364D.SeuratObj, 
+                                         return.only.var.genes = T,
+                                         assay = 'RNA', new.assay.name = 'SCT', 
+                                         residual.features = VarGenes.No.IG)
+```
+
+```{r}
+Merged.SeuratObj <- merge(x = Run_S1081_L364A.SeuratObj, 
+                          y = c(Run_S1146_L364B.SeuratObj,
+                                Run_S1146_L364C.SeuratObj,
+                                Run_S1146_L364D.SeuratObj))
+```
+
+```{r}
+set.seed(123)
+
+Merged.SeuratObj <- PrepSCTFindMarkers(Merged.SeuratObj)
+```
+
+# 4. Harmony Integration
+
+```{r}
+set.seed(123)
+
+# Run PCA on SCT assay
+Merged.SeuratObj <- RunPCA(
+  Merged.SeuratObj, 
+  assay = 'SCT', 
+  features = VarGenes.No.IG,
+  verbose = TRUE
+)
+
+digest::digest(Merged.SeuratObj@reductions$pca@cell.embeddings)
+#593e8cbf7ef40257ca43a278b04a2e77
+
+# These are now standard steps in the Seurat workflow for visualization and clustering
+elbow_plot <- ElbowPlot(object = Merged.SeuratObj, ndims = 40)
+
+print(elbow_plot)
+```
+
+
+```{r}
+seed.use = 123
+
+Merged.SeuratObj <- RunUMAP(Merged.SeuratObj, dims=1:9, reduction = 'pca', 
+                            reduction.name = 'umap', reduction.key = 'umap', 
+                            spread=0.15, min.dist=0.3, n.neighbors=150, 
+                            n.epochs = 200, return.model = T, seed.use = 123)
+```
+
+```{r}
+seed.use = 123
+
+#Merged.SeuratObj <- RunHarmony(Merged.SeuratObj, 
+#                               group.by.vars = c('Timepoint', 'Donor', 'Run', 'Identity'), 
+#                               lambda=c(2,1,2,1),
+#                               dims.use = 1:9, max_iter = 50)
+
+Merged.SeuratObj <- RunHarmony(Merged.SeuratObj, 
+                               group.by.vars = 'Identity',
+                               dims.use = 1:9, max_iter = 50)
+```
+
+```{r}
+seed.use = 123
+
+Merged.SeuratObj <- RunUMAP(Merged.SeuratObj, dims=1:9, reduction = 'harmony', 
+                            reduction.name = 'h_umap', reduction.key = 'h_umap', 
+                            spread=0.15, min.dist=0.3, n.neighbors=150, 
+                            n.epochs = 200, return.model = T, seed.use = 123)
+```
+
+```{r}
+# Integrated UMAP
+
+plot1 <- DimPlot(Merged.SeuratObj, reduction = 'h_umap', group.by = 'Donor')
+plot2 <- DimPlot(Merged.SeuratObj, reduction = 'h_umap', group.by = 'Timepoint', label = T)
+
+plot1 + plot2
+```
+
+```{r}
+# Non-integrated UMAP for reference
+
+plot1 <- DimPlot(Merged.SeuratObj, reduction = 'umap', group.by = 'Donor')
+plot2 <- DimPlot(Merged.SeuratObj, reduction = 'umap', group.by = 'Timepoint', label = T)
+
+plot1 + plot2
+```
+
+# 5. Saving integrated seurat object
+
+```{r}
+saveRDS(object = Merged.SeuratObj, file = paste(data_folder, 'SC_Objects', 'Integrated.rds', sep = '/'))
+```
+
+# 6. Session Info
+
+```{r}
+library(tools)
+
+script_path <- rstudioapi::getSourceEditorContext()$path
+script_path_no_ext <- file_path_sans_ext(script_path)
+
+writeLines(capture.output(sessionInfo()), paste0(script_path_no_ext, '__Session_Info.txt'))
+```
