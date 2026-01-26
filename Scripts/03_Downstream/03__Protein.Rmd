@@ -1,0 +1,508 @@
+---
+title: "Figures"
+output: html_document
+date: '2023-04-05'
+---
+
+# 1. Setup
+
+## - Setting work directories
+
+Defining work directory within rmarkdown chunk
+
+```{r setup, include=TRUE}
+local_wd_folder = dirname(dirname(dirname(rstudioapi::getSourceEditorContext()$path)))
+knitr::opts_knit$set(root.dir = local_wd_folder)
+```
+
+```{r}
+setwd(local_wd_folder)
+```
+
+## - Setting seed
+
+This step ensures reproducibility in randomized processes
+
+```{r}
+set.seed(seed = 123, kind = "Mersenne-Twister", normal.kind = "Inversion")
+```
+
+## - Options
+
+```{r}
+options(Seurat.object.assay.version = 'v3')
+```
+
+## - Loading libraries
+
+```{r}
+library(SingleCellExperiment)
+library(Seurat)
+library(scuttle)
+library(scater)
+library(dplyr)
+library(stringr)
+library(R.utils)
+library(gridExtra)
+library(scDblFinder)
+```
+
+## - Defining input data and output directories
+
+```{r}
+data_folder = paste0(local_wd_folder, '/Data/10x')
+results_folder = paste0(local_wd_folder, '/Results/10x')
+Input_data = paste(data_folder, '/Per_Sample_Demultiplexed_Mapped_Data', sep = '')
+
+dir.create(path = paste(results_folder, '/ADT', sep = ''), showWarnings = F)
+```
+
+## - Loading palettes
+
+```{r}
+# Load additional colour palette packages
+library(unikn, quietly = TRUE)
+library(RColorBrewer, quietly = TRUE)
+library(yarrr, quietly = TRUE)
+library(scales, quietly = TRUE)
+library(ggsci, quietly = TRUE)
+
+# Define a set of custom color palettes from the unikn package
+mix_1 <- usecol(pal = c(Karpfenblau, "white", Peach), n = 15)
+mix_2 <- usecol(pal = c(rev(pal_seeblau), "white", pal_pinky))
+mix_3 <- usecol(pal = c(rev(pal_bordeaux), "white", pal_petrol), n = 15)
+
+# Display the custom palettes
+seecol(list(mix_1, mix_2, mix_3), col_brd = "white", lwd_brd = 4, title = "Comparing palettes mixed from unikn colors", pal_names = c("mix_1", "mix_2", "mix_3"))
+
+# Define a second set of custom palettes from the RColorBrewer and yarrr packages
+brew_mix <- usecol(c(rev(brewer.pal(n = 4, name = "Reds")), "white", brewer.pal(n = 4, name = "Blues")), n = 13)
+brew_ext <- usecol(brewer.pal(n = 11, name = "Spectral"), n = 12)
+yarrr_mix <- usecol(c(piratepal("nemo"), piratepal("bugs")))
+yarrr_mod <- usecol(c(piratepal("ipod")), n = 9)
+
+gradient_exp <- rev(c('#FFAB01', '#FC8805', '#FC5D05', '#D92211', "#D9043D", "#A6036D", "#7C038C", "#5503A6", "#A69AEE", '#D9D4F7', "#FFFFFF", "#F4F7FF", '#E9EBEF'))
+
+# Display the second set of custom palettes
+seecol(pal = list(brew_mix, brew_ext, yarrr_mix, yarrr_mod), col_brd = "white", lwd_brd = 2, title = "Using usecol() and seecol() to mix and modify palettes", pal_names = c("brew_mix", "brew_ext", "yarrr_mix", "yarrr_mod"))
+
+# Define additional custom palettes from the scales package
+natjournals_palette <- pal_npg("nrc")(10)
+```
+
+# 2. INPUT: Importing pre-filtered samples
+
+```{r}
+Merged.SeuratObj <- readRDS(paste(data_folder, 'SC_Objects', 'Annotated.rds', sep = '/'))
+```
+
+# 3. Add unique identifier to each sample CS matrix
+
+```{r}
+sample_list <- list()
+all_samples <- list.files(Input_data, full.names = TRUE)
+
+for (n in 1:length(all_samples)) {
+  sample_list[[basename(all_samples[[n]])]] <- file.path(all_samples[[n]])
+}
+```
+
+```{r}
+ADT_count_matrices <- list()
+sample_names <- c()
+
+for (sample in names(sample_list)) {
+  dir <- sample_list[[sample]]
+  sample_names[[sample]] <- sample
+  ADT_count_matrices[[sample]] <- Seurat::Read10X(data.dir = dir)[['Antibody Capture']]
+  rm(dir)
+}
+```
+
+Prior aggregation, cells across the various samples are named the same
+
+```{r}
+head(colnames(ADT_count_matrices[[1]]))
+```
+
+To avoid this, we remove the final characters '-1' and add a unique sample identifier
+
+```{r}
+for (count.mat in names(ADT_count_matrices)) {
+  
+  index <- match(count.mat, names(ADT_count_matrices))
+  updated_barcodes_names <- paste(paste(substring(colnames(ADT_count_matrices[[count.mat]]),0,16),sep=""),'__', sample_names[index], sep = "")
+  colnames(ADT_count_matrices[[count.mat]]) <- updated_barcodes_names
+  
+}
+```
+
+We can now confirm that the above step went well
+
+```{r}
+head(colnames(ADT_count_matrices[[1]]))
+```
+
+```{r}
+ADT.assays <- list()
+ADT_count_matrices.filtered <- list()
+
+for (s in sample_names) {
+  
+  # Get the column names to keep
+  CB_to_keep <- colnames(Merged.SeuratObj)[colnames(Merged.SeuratObj) %in% colnames(ADT_count_matrices[str_detect(names(ADT_count_matrices), s)][[1]])]
+  
+  # Filter the count matrix for the current sample
+  ADT_count_matrices.filtered[[s]] <- ADT_count_matrices[str_detect(names(ADT_count_matrices), s)][[1]][, CB_to_keep, drop = FALSE]
+  
+}
+
+add_zero_row_if_missing <- function(mat, feature = "HTO_CO253") {
+  rn <- rownames(mat)
+  if (is.null(rn)) stop("Matrix has NULL rownames; cannot target features by name.")
+
+  idx <- match(feature, rn)
+
+  if (!is.na(idx)) {
+    mat[idx, ] <- 0
+  } else {
+    zero_row <- Matrix::Matrix(0, nrow = 1, ncol = ncol(mat), sparse = TRUE)
+    rownames(zero_row) <- feature
+    colnames(zero_row) <- colnames(mat)
+    mat <- rbind(mat, zero_row)
+  }
+
+  mat
+}
+
+targets <- c(
+  "VA022_T8_Ambiguous",
+  "VA013_T8_Ambiguous", "VA013_T8_ASB", "VA013_T8_GB",
+  "VA035_T8_Ambiguous", "VA035_T8_ASB", "VA035_T8_GB"
+)
+
+for (nm in targets) {
+  if (!nm %in% names(ADT_count_matrices.filtered)) {
+    warning("Skipping: '", nm, "' not found in ADT_count_matrices.filtered")
+    next
+  }
+
+  ADT_count_matrices.filtered[[nm]] <- add_zero_row_if_missing(
+    ADT_count_matrices.filtered[[nm]],
+    feature = "HTO_CO253"
+  )
+}
+
+
+Merged_ADT_count_matrix <- do.call(cbind, ADT_count_matrices.filtered)
+
+Merged_ADT_count_matrix <- Merged_ADT_count_matrix[,colnames(Merged.SeuratObj)]
+
+# View the merged matrix
+print(Merged_ADT_count_matrix)
+
+# Create HTO assay
+HTO.assay <- CreateAssayObject(
+  counts = Merged_ADT_count_matrix[str_detect(rownames(Merged_ADT_count_matrix), pattern = 'HTO'), ],
+  key = 'HTO'
+)
+
+# Create ADT assay (rows that do NOT match 'HTO')
+ADT.assay <- CreateAssayObject(
+  counts = Merged_ADT_count_matrix[!str_detect(rownames(Merged_ADT_count_matrix), pattern = 'HTO'), ],
+  key = 'ADT'
+)
+
+Merged.SeuratObj@assays[['HTO']] <- HTO.assay
+Merged.SeuratObj@assays[['ADT']] <- ADT.assay
+
+Merged.SeuratObj <- NormalizeData(Merged.SeuratObj, assay = 'ADT', margin = 2)
+```
+
+```{r}
+saveRDS(Merged.SeuratObj, paste(data_folder, 'SC_Objects', 'Added_ADT.rds', sep = '/'))
+```
+
+```{r}
+sample <- 'VA013_T5_ASB'
+
+cells <- WhichCells(Merged.SeuratObj, expression = Identity %in% sample)
+cell_types <- Merged.SeuratObj@meta.data[cells, 'Celltype']
+cells_highlight <- split(cells, cell_types)
+
+DimPlot(Merged.SeuratObj, reduction = 'h_umap', cells.highlight = cells_highlight,
+        group.by='Celltype', 
+        label = F, pt.size = 1, sizes.highlight = 2, alpha=0.8, order = T,
+        repel = T) + theme_void() + scale_color_manual(values = c(
+  "Naive B-cells"                = "#E15759",
+  "Transitional B-cells"         = "#EDC948",
+  "Atypical memory B-cells"      = "#F28E2B",
+  "IgM memory B-cells"           = "#76B7B2",
+  "Class switched memory B-cells"= "#4E79A7",
+  "CD4+ T-cells"                 = "#9C755F",
+  "CD8+ T-cells"                 = "#BAB0AC",
+  "NK cells"                     = "#59A14F",
+  "CD14+ monocytes"              = "#FF9DA7",
+  "CD16+ monocytes"              = "#B07AA1",
+  "Dendritic cells"              = "#B6992D"),
+                                                      na.value = '#DCDADB') + 
+  theme(plot.title = element_text(hjust=0.5, vjust = 0.5),
+        plot.subtitle = element_text(hjust=0.5, vjust = 0.5),
+        legend.position = 'none') +
+  ggtitle(label = sprintf('%s', sample), subtitle = paste('N = ', length(cells), sep = ''))
+```
+
+```{r}
+library(Seurat)
+library(ggplot2)
+library(stringr)
+library(Matrix)
+library(patchwork)
+library(grid)
+
+# ---------- REQUIRED OBJECTS ----------
+# Merged.SeuratObj
+# gradient_exp
+# results_folder
+
+# ---------- PALETTE ----------
+cols <- c(
+  "Naive B-cells"                 = "#E15759",
+  "Transitional B-cells"          = "#EDC948",
+  "Atypical memory B-cells"       = "#F28E2B",
+  "IgM memory B-cells"            = "#76B7B2",
+  "Class switched memory B-cells" = "#4E79A7",
+  "CD4+ T-cells"                  = "#9C755F",
+  "CD8+ T-cells"                  = "#BAB0AC",
+  "NK cells"                      = "#59A14F",
+  "CD14+ monocytes"               = "#FF9DA7",
+  "CD16+ monocytes"               = "#B07AA1",
+  "Dendritic cells"               = "#B6992D"
+)
+
+# Which ADT slot to plot:
+# "data"   -> Merged.SeuratObj@assays$ADT@data  (your stated location)
+# "counts" -> raw counts
+ADT_SLOT <- "data"
+
+# ---------- helpers ----------
+blank_square <- function(title = NULL, subtitle = NULL) {
+  ggplot() +
+    theme_void() +
+    theme(
+      plot.title = element_text(hjust = 0.5, face = "bold"),
+      plot.subtitle = element_text(hjust = 0.5)
+    ) +
+    ggtitle(title, subtitle = subtitle)
+}
+
+make_dimplot_highlight_celltypes <- function(obj, ident_string, reduction = "h_umap") {
+  idents_avail <- as.character(unique(obj$Identity))
+
+  if (!ident_string %in% idents_avail) {
+    return(blank_square(title = ident_string, subtitle = "Missing Identity"))
+  }
+
+  cells <- WhichCells(obj, expression = Identity %in% ident_string)
+  if (length(cells) == 0) {
+    return(blank_square(title = ident_string, subtitle = "No cells"))
+  }
+
+  cell_types <- obj@meta.data[cells, "Celltype"]
+  cells_highlight <- split(cells, cell_types)
+
+  # DimPlot adds its own colour scale; we replace it with your manual palette.
+  # The replacement message is harmless; wrap in suppressMessages() if you want silence.
+  DimPlot(
+    obj,
+    reduction = reduction,
+    cells.highlight = cells_highlight,
+    group.by = "Celltype",
+    label = FALSE,
+    pt.size = 1,
+    sizes.highlight = 1.4,
+    alpha = 0.8,
+    order = TRUE,
+    repel = TRUE
+  ) +
+    theme_void() +
+    scale_color_manual(values = cols, na.value = "#DCDADB", breaks = names(cols)) +
+    theme(
+      plot.title = element_text(hjust = 0.5, vjust = 0.5, face = "bold"),
+      plot.subtitle = element_text(hjust = 0.5, vjust = 0.5),
+      legend.position = "none"
+    ) +
+    ggtitle(label = ident_string, subtitle = paste0("N = ", length(cells)))
+}
+
+# ADT feature plot for one identity and one target
+# - Title is TARGET (not sample)
+# - Legend bottom
+# - No fixed limits (no global rescaling)
+# - Pulls values directly from ADT slot to avoid Seurat "default locations" warnings
+make_adt_plot_one_identity_one_target <- function(obj, ident_string, target,
+                                                 reduction = "h_umap", adt_slot = "data") {
+  idents_avail <- as.character(unique(obj$Identity))
+
+  if (!ident_string %in% idents_avail) {
+    return(blank_square(title = target, subtitle = paste0(ident_string, " missing")))
+  }
+
+  if (!"ADT" %in% names(obj@assays)) {
+    return(blank_square(title = target, subtitle = "ADT assay missing"))
+  }
+
+  # Directly access ADT matrix (this is what you said you have)
+  adt_mat <- GetAssayData(obj, assay = "ADT", slot = adt_slot)
+
+  if (!target %in% rownames(adt_mat)) {
+    return(blank_square(title = target, subtitle = paste0("Not in ADT@", adt_slot)))
+  }
+
+  cells <- WhichCells(obj, expression = Identity %in% ident_string)
+  if (length(cells) == 0) {
+    return(blank_square(title = target, subtitle = paste0(ident_string, ": no cells")))
+  }
+
+  umap_embeddings <- as.data.frame(obj@reductions[[reduction]]@cell.embeddings)
+  colnames(umap_embeddings)[1:2] <- c("humap_1", "humap_2")
+  umap_embeddings$cell <- rownames(umap_embeddings)
+
+  # vector of feature values for ALL cells, indexed by cell names
+  feat_vec <- as.numeric(adt_mat[target, ])
+  names(feat_vec) <- colnames(adt_mat)
+
+  umap_embeddings$feature <- feat_vec[umap_embeddings$cell]
+
+  all_cells <- umap_embeddings
+  selected_cells <- umap_embeddings[umap_embeddings$cell %in% cells, , drop = FALSE]
+
+  n_pos <- sum(selected_cells$feature > 0, na.rm = TRUE)
+  n_tot <- nrow(selected_cells)
+  pct   <- if (n_tot > 0) round((n_pos / n_tot) * 100, 1) else NA_real_
+
+  ggplot() +
+    geom_point(
+      data = all_cells,
+      aes(x = humap_1, y = humap_2),
+      color = "#DCDADB",
+      alpha = 0.3,
+      size = 0.5
+    ) +
+    geom_point(
+      data = selected_cells,
+      aes(x = humap_1, y = humap_2, color = feature),
+      size = 2,
+      alpha = 1
+    ) +
+    scale_color_gradientn(
+      colours = gradient_exp,
+      name = "CLR normalised exp.",
+      na.value = "#DCDADB"
+    ) +
+    guides(
+      color = guide_colorbar(
+        title.position = "top",
+        title.hjust = 0.5,
+        barwidth = unit(7.5, "cm"),
+        barheight = unit(0.35, "cm")
+      )
+    ) +
+    theme_void() +
+    theme(
+      legend.position = "bottom",
+      legend.direction = "horizontal",
+      legend.text = element_text(size = 9),
+      legend.title = element_text(size = 10),
+      legend.box.spacing = unit(0.15, "lines"),
+      plot.title = element_text(hjust = 0.5, face = "bold"),
+      plot.subtitle = element_text(hjust = 0.5, face = "bold")
+    ) +
+    ggtitle(
+      label = target,
+      subtitle = paste0("ADT > 0: ", n_pos, "/", n_tot, " (", pct, "%)")
+    ) +
+    xlab(NULL) + ylab(NULL)
+}
+
+# Grid logic:
+# - Col 2 (row1/row2) = targetA for T5/T8
+# - Col 3 (row1/row2) = targetB for T5/T8
+make_grid_for_targets2 <- function(obj, base_id, group, targets2,
+                                  reduction = "h_umap", adt_slot = "data") {
+  id_T5 <- paste0(base_id, "_T5_", group)
+  id_T8 <- paste0(base_id, "_T8_", group)
+
+  targetA <- targets2[1]
+  targetB <- targets2[2]
+
+  p11 <- make_dimplot_highlight_celltypes(obj, id_T5, reduction = reduction)
+  p21 <- make_dimplot_highlight_celltypes(obj, id_T8, reduction = reduction)
+
+  p12 <- if (!is.na(targetA) && nzchar(targetA)) make_adt_plot_one_identity_one_target(obj, id_T5, targetA, reduction, adt_slot) else blank_square()
+  p22 <- if (!is.na(targetA) && nzchar(targetA)) make_adt_plot_one_identity_one_target(obj, id_T8, targetA, reduction, adt_slot) else blank_square()
+
+  p13 <- if (!is.na(targetB) && nzchar(targetB)) make_adt_plot_one_identity_one_target(obj, id_T5, targetB, reduction, adt_slot) else blank_square()
+  p23 <- if (!is.na(targetB) && nzchar(targetB)) make_adt_plot_one_identity_one_target(obj, id_T8, targetB, reduction, adt_slot) else blank_square()
+
+  ((p11 + p12 + p13) /
+     (p21 + p22 + p23)) +
+    plot_annotation(title = paste0(base_id, " - ", group))
+}
+
+# ---------- iteration setup ----------
+all_idents <- as.character(unique(Merged.SeuratObj$Identity))
+base_ids <- sort(unique(str_replace(all_idents, "_T(5|8)_.+$", "")))
+
+adt_targets <- rownames(GetAssayData(Merged.SeuratObj, assay = "ADT", slot = ADT_SLOT))
+
+# chunk into groups of 2 targets (two target columns); pad last with NA for blank right column
+target_chunks2 <- split(adt_targets, ceiling(seq_along(adt_targets) / 2))
+target_chunks2 <- lapply(target_chunks2, function(x) c(x, rep(NA_character_, 2 - length(x))))
+
+dir.create(file.path(results_folder, "ADT"), recursive = TRUE, showWarnings = FALSE)
+
+# ---------- generate & save grids ----------
+for (base_id in base_ids) {
+  for (group in c("GB", "ASB", "Ambiguous")) {
+    for (k in seq_along(target_chunks2)) {
+
+      targets2 <- target_chunks2[[k]]
+
+      grid_plot <- make_grid_for_targets2(
+        obj = Merged.SeuratObj,
+        base_id = base_id,
+        group = group,
+        targets2 = targets2,
+        reduction = "h_umap",
+        adt_slot = ADT_SLOT
+      )
+
+      page_label <- paste(na.omit(targets2), collapse = "_")
+      if (page_label == "") page_label <- paste0("page_", k)
+
+      out_png <- file.path(
+        results_folder, "ADT",
+        paste0(base_id, "_", group, "_", sprintf("%02d", k), "_", page_label, ".png")
+      )
+
+      # Portable save (and uses Cairo if your system supports it)
+      grDevices::png(out_png, width = 10, height = 8, units = "in", res = 300,
+                     type = if (capabilities("cairo")) "cairo" else "Xlib")
+      print(grid_plot)
+      dev.off()
+    }
+  }
+}
+```
+
+## - Session Info
+
+```{r}
+library(tools)
+
+script_path <- rstudioapi::getSourceEditorContext()$path
+script_path_no_ext <- file_path_sans_ext(script_path)
+
+writeLines(capture.output(sessionInfo()), paste0(script_path_no_ext, '__Session_Info.txt'))
+```

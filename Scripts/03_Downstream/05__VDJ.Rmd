@@ -47,12 +47,6 @@ library(gridExtra)
 library(scDblFinder)
 ```
 
-## - Session Info
-
-```{r}
-writeLines(capture.output(sessionInfo()), file.path(dirname(rstudioapi::getSourceEditorContext()$path), '04_Session_Info.txt'))
-```
-
 ## - Defining input data and output directories
 
 ```{r}
@@ -177,5 +171,13 @@ write.table(
 saveRDS(Merged.SeuratObj, paste(data_folder, 'SC_Objects', 'Added_VDJ.rds', sep = '/'))
 ```
 
+## - Session Info
 
+```{r}
+library(tools)
 
+script_path <- rstudioapi::getSourceEditorContext()$path
+script_path_no_ext <- file_path_sans_ext(script_path)
+
+writeLines(capture.output(sessionInfo()), paste0(script_path_no_ext, '__Session_Info.txt'))
+```
