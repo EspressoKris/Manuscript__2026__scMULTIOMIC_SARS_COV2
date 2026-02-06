@@ -45,6 +45,8 @@ library(stringr)
 library(R.utils)
 library(gridExtra)
 library(scDblFinder)
+library(Biostrings)
+library(Rsamtools)
 ```
 
 ## - Defining input data and output directories
@@ -52,6 +54,7 @@ library(scDblFinder)
 ```{r}
 data_folder = paste0(local_wd_folder, '/Data/10x')
 results_folder = paste0(local_wd_folder, '/Results/10x')
+Input_data = paste(data_folder, '/Per_Sample_Demultiplexed_Mapped_Data', sep = '')
 
 dir.create(path = paste(results_folder, '/VDJ', sep = ''), showWarnings = F)
 ```
@@ -95,7 +98,189 @@ natjournals_palette <- pal_npg("nrc")(10)
 Merged.SeuratObj <- readRDS(paste(data_folder, 'SC_Objects', 'Added_ADT.rds', sep = '/'))
 ```
 
-# 3. Loading VDJ data
+# 3. Loading per sample barcodes from ADT data
+
+```{r}
+sample_list <- list()
+all_samples <- list.files(Input_data, full.names = TRUE)
+
+for (n in 1:length(all_samples)) {
+  sample_list[[basename(all_samples[[n]])]] <- file.path(all_samples[[n]])
+}
+```
+
+```{r}
+ADT_count_matrices <- list()
+sample_names <- c()
+
+for (sample in names(sample_list)) {
+  dir <- sample_list[[sample]]
+  sample_names[[sample]] <- sample
+  ADT_count_matrices[[sample]] <- Seurat::Read10X(data.dir = dir)[['Antibody Capture']]
+  rm(dir)
+}
+```
+
+```{r}
+for (count.mat in names(ADT_count_matrices)) {
+  
+  index <- match(count.mat, names(ADT_count_matrices))
+  updated_barcodes_names <- paste(paste(substring(colnames(ADT_count_matrices[[count.mat]]),0,16),sep=""),'__', sample_names[index], sep = "")
+  colnames(ADT_count_matrices[[count.mat]]) <- updated_barcodes_names
+  
+}
+```
+
+```{r}
+bc_rename_dfs <- data.frame(
+  renamed_bc  = character(),
+  original_bc = character(),
+  sample_name = character(),
+  stringsAsFactors = FALSE
+)
+
+for (count.mat in names(ADT_count_matrices)) {
+
+  index <- match(count.mat, names(ADT_count_matrices))
+
+  original_bc <- colnames(ADT_count_matrices[[count.mat]])
+
+  sample_name_i <- as.character(sample_names[[index]])
+
+  renamed_bc <- paste0(substr(original_bc, 1, 16), "__", sample_name_i)
+
+  bc_df <- data.frame(
+    renamed_bc  = renamed_bc,
+    original_bc = original_bc,
+    sample_name = sample_name_i,
+    stringsAsFactors = FALSE
+  )
+
+  rownames(bc_df) <- bc_df$renamed_bc
+
+  bc_rename_dfs <- rbind(bc_rename_dfs, bc_df)
+}
+
+bc_rename_dfs_filtered <- bc_rename_dfs %>% filter(renamed_bc %in% colnames(Merged.SeuratObj))
+
+Run_S1081_L364A_bcs <- bc_rename_dfs_filtered %>% filter(sample_name %in% c('VA013_T5_GB', 'VA013_T5_ASB', 'VA013_T5_Ambiguous',
+  'VA022_T5_GB', 'VA022_T5_ASB', 'VA022_T5_Ambiguous',
+  'VA035_T5_GB', 'VA035_T5_ASB', 'VA035_T5_Ambiguous'))
+
+Run_S1146_L364B_bcs <- bc_rename_dfs_filtered %>% filter(sample_name %in% c('VA013_T8_GB', 'VA013_T8_ASB', 'VA013_T8_Ambiguous',
+  'VA022_T8_Ambiguous',
+  'VA035_T8_GB', 'VA035_T8_ASB', 'VA035_T8_Ambiguous'))
+
+Run_S1146_L364C_bcs <- bc_rename_dfs_filtered %>% filter(sample_name %in% c('VA025_T8_GB', 'VA025_T8_ASB', 'VA025_T8_Ambiguous',
+  'VA038_T8_GB', 'VA038_T8_ASB', 'VA038_T8_Ambiguous',
+  'VA059_T8_GB', 'VA059_T8_ASB', 'VA059_T8_Ambiguous'))
+
+Run_S1146_L364D_bcs <- bc_rename_dfs_filtered %>% filter(sample_name %in% c('VA025_T5_GB', 'VA025_T5_ASB', 'VA025_T5_Ambiguous',
+  'VA038_T5_GB', 'VA038_T5_ASB', 'VA038_T5_Ambiguous',
+  'VA059_T5_GB', 'VA059_T5_ASB', 'VA059_T5_Ambiguous'))
+
+Runs_bc <- list('Run_S1081_L364A' = Run_S1081_L364A_bcs,
+                'Run_S1146_L364B' = Run_S1146_L364B_bcs,
+                'Run_S1146_L364C' = Run_S1146_L364C_bcs,
+                'Run_S1146_L364D' = Run_S1146_L364D_bcs)
+```
+
+```{r}
+merged_fasta <- DNAStringSet()
+
+for (run in names(Runs_bc)) {
+
+  # -----------------------------
+  # Paths
+  # -----------------------------
+  in_fasta <- file.path(
+    data_folder,
+    "Per_ChromiumLane_Mapped_Data", run, "outs/multi/vdj_b/all_contig.fasta"
+  )
+
+  out_fasta <- file.path(
+    results_folder,
+    paste0("VDJ/", run, "_all_contig.fasta")
+  )
+
+  # -----------------------------
+  # Run-specific mapping: original_bc -> renamed_bc
+  # -----------------------------
+  run_bcs <- Runs_bc[[run]]
+  map_vec <- setNames(run_bcs$renamed_bc, run_bcs$original_bc)
+
+  # -----------------------------
+  # Read FASTA
+  # -----------------------------
+  x <- readDNAStringSet(in_fasta)
+  hdr <- names(x)
+
+  # -----------------------------
+  # Remove ONLY duplicate headers that have identical sequences
+  #   - If a header appears >1x AND sequences differ, keep all and make unique.
+  # -----------------------------
+  tab <- table(hdr)
+  dup_hdrs <- names(tab)[tab > 1]
+
+  if (length(dup_hdrs) > 0) {
+    keep_idx <- rep(TRUE, length(x))
+
+    for (h in dup_hdrs) {
+      idx <- which(hdr == h)
+      seqs <- as.character(x[idx])
+
+      if (length(unique(seqs)) == 1) {
+        # identical sequences -> drop all but first
+        keep_idx[idx[-1]] <- FALSE
+      } else {
+        # same header but different sequences -> cannot drop; make names unique for these
+        names(x)[idx] <- make.unique(rep(h, length(idx)), sep = "_dup")
+      }
+    }
+
+    x <- x[keep_idx]
+    hdr <- names(x)
+  }
+
+  # -----------------------------
+  # Rename barcodes, keep _contig_X
+  # -----------------------------
+  barcode <- sub("(_contig_.*)$", "", hdr)
+  suffix  <- sub("^.*(_contig_.*)$", "\\1", hdr)
+
+  barcode_new <- unname(map_vec[barcode])
+  keep <- !is.na(barcode_new)
+
+  x <- x[keep]
+  names(x) <- paste0(barcode_new[keep], suffix[keep])
+
+  # -----------------------------
+  # Write per-run FASTA + index
+  # -----------------------------
+  dir.create(dirname(out_fasta), recursive = TRUE, showWarnings = FALSE)
+  writeXStringSet(x, out_fasta, format = "fasta")
+  indexFa(out_fasta)
+
+  merged_fasta <- c(merged_fasta, x)
+
+  message("Processed + indexed run: ", run)
+}
+
+# -----------------------------
+# Write merged FASTA + index
+# -----------------------------
+merged_out <- file.path(results_folder, "VDJ/Merged_Runs_all_contig.fasta")
+
+# ensure merged headers are unique before indexing
+if (anyDuplicated(names(merged_fasta)) > 0) {
+  stop("Duplicate contig names detected in merged FASTA. Check renamed_bc uniqueness across runs.")
+}
+
+writeXStringSet(merged_fasta, merged_out, format = "fasta")
+indexFa(merged_out)
+
+merged_out
+```
 
 ```{r}
 VDJ_data <- read.table(paste(data_folder, 'VDJ', 'BCR_DATA.csv', sep = '/'), sep = ',', row.names = 'X',

@@ -1,0 +1,3 @@
+ERROR> No valid germline fasta files (.fasta, .fna, .fa) were found at /usr/local/share/germlines/imgt/human/vdj/imgt_human_*.fasta.
+
+slurmstepd-imm-wn7: error: --task-epilog failed status=512

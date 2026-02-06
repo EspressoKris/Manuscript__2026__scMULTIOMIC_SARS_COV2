@@ -1,0 +1,477 @@
+---
+title: "Figures"
+output: html_document
+date: '2023-04-05'
+---
+
+# 1. Setup
+
+## - Setting work directories
+
+Defining work directory within rmarkdown chunk
+
+```{r setup, include=TRUE}
+local_wd_folder = dirname(dirname(dirname(rstudioapi::getSourceEditorContext()$path)))
+knitr::opts_knit$set(root.dir = local_wd_folder)
+```
+
+```{r}
+setwd(local_wd_folder)
+```
+
+## - Setting seed
+
+This step ensures reproducibility in randomized processes
+
+```{r}
+set.seed(seed = 123, kind = "Mersenne-Twister", normal.kind = "Inversion")
+```
+
+## - Options
+
+```{r}
+options(Seurat.object.assay.version = 'v3')
+```
+
+## - Loading libraries
+
+```{r}
+library(SingleCellExperiment)
+library(Seurat)
+library(scuttle)
+library(scater)
+library(dplyr)
+library(stringr)
+library(R.utils)
+library(gridExtra)
+library(scDblFinder)
+library(Biostrings)
+library(Rsamtools)
+```
+
+## - Defining input data and output directories
+
+```{r}
+data_folder = paste0(local_wd_folder, '/Data/10x')
+results_folder = paste0(local_wd_folder, '/Results/10x')
+Input_data = paste(data_folder, '/Per_Sample_Demultiplexed_Mapped_Data', sep = '')
+
+dir.create(path = paste(results_folder, '/VDJ', sep = ''), showWarnings = F)
+```
+
+## - Loading palettes
+
+```{r}
+# Load additional colour palette packages
+library(unikn, quietly = TRUE)
+library(RColorBrewer, quietly = TRUE)
+library(yarrr, quietly = TRUE)
+library(scales, quietly = TRUE)
+library(ggsci, quietly = TRUE)
+
+# Define a set of custom color palettes from the unikn package
+mix_1 <- usecol(pal = c(Karpfenblau, "white", Peach), n = 15)
+mix_2 <- usecol(pal = c(rev(pal_seeblau), "white", pal_pinky))
+mix_3 <- usecol(pal = c(rev(pal_bordeaux), "white", pal_petrol), n = 15)
+
+# Display the custom palettes
+seecol(list(mix_1, mix_2, mix_3), col_brd = "white", lwd_brd = 4, title = "Comparing palettes mixed from unikn colors", pal_names = c("mix_1", "mix_2", "mix_3"))
+
+# Define a second set of custom palettes from the RColorBrewer and yarrr packages
+brew_mix <- usecol(c(rev(brewer.pal(n = 4, name = "Reds")), "white", brewer.pal(n = 4, name = "Blues")), n = 13)
+brew_ext <- usecol(brewer.pal(n = 11, name = "Spectral"), n = 12)
+yarrr_mix <- usecol(c(piratepal("nemo"), piratepal("bugs")))
+yarrr_mod <- usecol(c(piratepal("ipod")), n = 9)
+
+gradient_exp <- rev(c('#FFAB01', '#FC8805', '#FC5D05', '#D92211', "#D9043D", "#A6036D", "#7C038C", "#5503A6", "#A69AEE", '#D9D4F7', "#FFFFFF", "#F4F7FF", '#E9EBEF'))
+
+# Display the second set of custom palettes
+seecol(pal = list(brew_mix, brew_ext, yarrr_mix, yarrr_mod), col_brd = "white", lwd_brd = 2, title = "Using usecol() and seecol() to mix and modify palettes", pal_names = c("brew_mix", "brew_ext", "yarrr_mix", "yarrr_mod"))
+
+# Define additional custom palettes from the scales package
+natjournals_palette <- pal_npg("nrc")(10)
+```
+
+# 2. INPUT: Importing pre-filtered samples
+
+```{r}
+Merged.SeuratObj <- readRDS(paste(data_folder, 'SC_Objects', 'Added_ADT.rds', sep = '/'))
+```
+
+# 3. Loading per sample barcodes from ADT data
+
+```{r}
+sample_list <- list()
+all_samples <- list.files(Input_data, full.names = TRUE)
+
+for (n in 1:length(all_samples)) {
+  sample_list[[basename(all_samples[[n]])]] <- file.path(all_samples[[n]])
+}
+```
+
+```{r}
+ADT_count_matrices <- list()
+sample_names <- c()
+
+for (sample in names(sample_list)) {
+  dir <- sample_list[[sample]]
+  sample_names[[sample]] <- sample
+  ADT_count_matrices[[sample]] <- Seurat::Read10X(data.dir = dir)[['Antibody Capture']]
+  rm(dir)
+}
+```
+
+```{r}
+for (count.mat in names(ADT_count_matrices)) {
+  
+  index <- match(count.mat, names(ADT_count_matrices))
+  updated_barcodes_names <- paste(paste(substring(colnames(ADT_count_matrices[[count.mat]]),0,16),sep=""),'__', sample_names[index], sep = "")
+  colnames(ADT_count_matrices[[count.mat]]) <- updated_barcodes_names
+  
+}
+```
+
+```{r}
+bc_rename_dfs <- data.frame(
+  renamed_bc  = character(),
+  original_bc = character(),
+  sample_name = character(),
+  stringsAsFactors = FALSE
+)
+
+for (count.mat in names(ADT_count_matrices)) {
+
+  index <- match(count.mat, names(ADT_count_matrices))
+
+  original_bc <- colnames(ADT_count_matrices[[count.mat]])
+
+  sample_name_i <- as.character(sample_names[[index]])
+
+  renamed_bc <- paste0(substr(original_bc, 1, 16), "__", sample_name_i)
+
+  bc_df <- data.frame(
+    renamed_bc  = renamed_bc,
+    original_bc = original_bc,
+    sample_name = sample_name_i,
+    stringsAsFactors = FALSE
+  )
+
+  rownames(bc_df) <- bc_df$renamed_bc
+
+  bc_rename_dfs <- rbind(bc_rename_dfs, bc_df)
+}
+
+bc_rename_dfs_filtered <- bc_rename_dfs %>% filter(renamed_bc %in% colnames(Merged.SeuratObj))
+
+Run_S1081_L364A_bcs <- bc_rename_dfs_filtered %>% filter(sample_name %in% c('VA013_T5_GB', 'VA013_T5_ASB', 'VA013_T5_Ambiguous',
+  'VA022_T5_GB', 'VA022_T5_ASB', 'VA022_T5_Ambiguous',
+  'VA035_T5_GB', 'VA035_T5_ASB', 'VA035_T5_Ambiguous'))
+
+Run_S1146_L364B_bcs <- bc_rename_dfs_filtered %>% filter(sample_name %in% c('VA013_T8_GB', 'VA013_T8_ASB', 'VA013_T8_Ambiguous',
+  'VA022_T8_Ambiguous',
+  'VA035_T8_GB', 'VA035_T8_ASB', 'VA035_T8_Ambiguous'))
+
+Run_S1146_L364C_bcs <- bc_rename_dfs_filtered %>% filter(sample_name %in% c('VA025_T8_GB', 'VA025_T8_ASB', 'VA025_T8_Ambiguous',
+  'VA038_T8_GB', 'VA038_T8_ASB', 'VA038_T8_Ambiguous',
+  'VA059_T8_GB', 'VA059_T8_ASB', 'VA059_T8_Ambiguous'))
+
+Run_S1146_L364D_bcs <- bc_rename_dfs_filtered %>% filter(sample_name %in% c('VA025_T5_GB', 'VA025_T5_ASB', 'VA025_T5_Ambiguous',
+  'VA038_T5_GB', 'VA038_T5_ASB', 'VA038_T5_Ambiguous',
+  'VA059_T5_GB', 'VA059_T5_ASB', 'VA059_T5_Ambiguous'))
+
+Runs_bc <- list('Run_S1081_L364A' = Run_S1081_L364A_bcs,
+                'Run_S1146_L364B' = Run_S1146_L364B_bcs,
+                'Run_S1146_L364C' = Run_S1146_L364C_bcs,
+                'Run_S1146_L364D' = Run_S1146_L364D_bcs)
+```
+
+```{r}
+suppressPackageStartupMessages({
+  library(Biostrings)
+  library(Rsamtools)
+  library(data.table)
+})
+
+# Map renamed barcode -> Identity (swap Identity for any meta column you want)
+id_map <- setNames(
+  Merged.SeuratObj@meta.data$Identity,
+  rownames(Merged.SeuratObj@meta.data)
+)
+
+merged_fasta <- DNAStringSet()
+merged_annot <- NULL
+all_run_summ <- list()
+
+for (run in names(Runs_bc)) {
+
+  # -----------------------------
+  # Paths
+  # -----------------------------
+  in_fasta <- file.path(
+    data_folder,
+    "Per_ChromiumLane_Mapped_Data", run, "outs/multi/vdj_b/all_contig.fasta"
+  )
+  in_annot <- file.path(
+    data_folder,
+    "Per_ChromiumLane_Mapped_Data", run, "outs/multi/vdj_b/all_contig_annotations.csv"
+  )
+
+  out_fasta <- file.path(results_folder, paste0("VDJ/", run, "_all_contig.fasta"))
+  out_annot <- file.path(results_folder, paste0("VDJ/", run, "_all_contig_annotations.csv"))
+
+  # per-run QC/drop summary
+  out_summ <- file.path(results_folder, paste0("VDJ/", run, "_qc_summary.csv"))
+
+  dir.create(dirname(out_fasta), recursive = TRUE, showWarnings = FALSE)
+
+  # -----------------------------
+  # Run-specific mapping: original_bc -> renamed_bc
+  #   original_bc format: "<barcode_base>__<sample_label>"
+  # -----------------------------
+  run_bcs <- Runs_bc[[run]]
+  map_vec <- setNames(run_bcs$renamed_bc, run_bcs$original_bc)
+
+  # Build bc_base -> sample_label dictionary from run_bcs$original_bc
+  map_bc_base <- sub("__.*$", "", run_bcs$original_bc)
+  map_sample  <- sub("^.*__", "", run_bcs$original_bc)
+
+  bc_to_sample <- tapply(map_sample, map_bc_base, function(z) unique(z))
+  ambig <- names(bc_to_sample)[vapply(bc_to_sample, length, integer(1)) > 1]
+  if (length(ambig) > 0) {
+    message("WARNING: barcodes with >1 sample_label in run ", run,
+            " (showing up to 10): ", paste(head(ambig, 10), collapse = ", "))
+  }
+  # choose first label if ambiguous (switch to stop() if you want strict)
+  bc_to_sample <- sapply(bc_to_sample, `[`, 1)
+
+  # =========================================================
+  # ANNOTATIONS CSV (load early for QC classification)
+  # =========================================================
+  ann0 <- data.table::fread(in_annot)
+
+  # normalize barcode base from annotations
+  ann0[, bc_base := sub("-1$", "", barcode)]
+
+  # =========================================================
+  # FASTA (read + duplicate handling + classification)
+  # =========================================================
+  x0 <- Biostrings::readDNAStringSet(in_fasta)
+  if (length(x0) == 0) stop("Input FASTA empty/unreadable: ", in_fasta)
+
+  hdr0 <- names(x0)
+
+  # Handle duplicate headers: drop only if identical sequences; else make unique
+  tab <- table(hdr0)
+  dup_hdrs <- names(tab)[tab > 1]
+
+  removed_identical_dup_headers <- character(0) # dropped
+  made_unique_headers <- character(0)           # not dropped, but renamed
+
+  x <- x0
+  hdr <- hdr0
+
+  if (length(dup_hdrs) > 0) {
+    keep_idx <- rep(TRUE, length(x))
+
+    for (h in dup_hdrs) {
+      idx <- which(hdr == h)
+      seqs <- as.character(x[idx])
+
+      if (length(unique(seqs)) == 1) {
+        # identical sequences -> drop all but first
+        keep_idx[idx[-1]] <- FALSE
+        removed_identical_dup_headers <- c(removed_identical_dup_headers, rep(h, length(idx) - 1))
+      } else {
+        # same header but different sequences -> keep all but make names unique
+        names(x)[idx] <- make.unique(rep(h, length(idx)), sep = "_dup")
+        made_unique_headers <- c(made_unique_headers, rep(h, length(idx)))
+      }
+    }
+
+    x <- x[keep_idx]
+    hdr <- names(x)
+  }
+
+  # Parse FASTA barcode + contig suffix from current headers
+  fasta_barcode <- sub("(_contig_\\d+.*)$", "", hdr)           # e.g. AAAG...-1
+  fasta_suffix  <- sub("^.*(_contig_\\d+.*)$", "\\1", hdr)     # e.g. _contig_1
+  fasta_bc_base <- sub("-1$", "", fasta_barcode)
+
+  # Build composite key per contig
+  fasta_sample_for <- unname(bc_to_sample[fasta_bc_base])
+  fasta_key <- ifelse(is.na(fasta_sample_for),
+                      NA_character_,
+                      paste0(fasta_bc_base, "__", fasta_sample_for))
+
+  # Lookup renamed barcode
+  fasta_renamed <- unname(map_vec[fasta_key])
+
+  # Classification BEFORE filtering
+  reason <- rep(NA_character_, length(fasta_bc_base))
+  reason[is.na(fasta_sample_for) & !(fasta_bc_base %in% names(bc_to_sample))] <- "unmapped_barcode_not_in_Runs_bc"
+  reason[is.na(fasta_sample_for) &  (fasta_bc_base %in% names(bc_to_sample))] <- "unmapped_missing_sample_label"
+  reason[!is.na(fasta_sample_for) & !(fasta_key %in% names(map_vec))]         <- "unmapped_key_not_in_map_vec"
+  reason[!is.na(fasta_sample_for) &  (fasta_key %in% names(map_vec)) & is.na(fasta_renamed)] <- "unmapped_map_vec_na"
+  reason[!is.na(fasta_renamed)] <- "kept_mapped"
+
+  keep_fasta <- (reason == "kept_mapped")
+
+  message("Run ", run, " | FASTA kept after mapping: ", sum(keep_fasta), "/", length(keep_fasta))
+  if (sum(keep_fasta) == 0) {
+    message("Example FASTA base barcode: ", fasta_bc_base[1])
+    message("Example inferred key: ", fasta_key[1])
+    message("Example mapping key: ", head(names(map_vec), 1))
+    stop("All FASTA contigs filtered out after mapping in run ", run)
+  }
+
+  # Join reason to annotations by contig_id (constructed in original style)
+  contig_id_from_fasta <- paste0(fasta_barcode, fasta_suffix)
+
+  reason_dt <- data.table(
+    run_id = run,
+    contig_id = contig_id_from_fasta,
+    bc_base = fasta_bc_base,
+    reason = reason
+  )
+
+  qc_dt <- merge(
+    reason_dt,
+    ann0[, .(contig_id, barcode, is_cell, high_confidence, productive, chain, length, reads, umis)],
+    by = "contig_id",
+    all.x = TRUE
+  )
+
+  # Summary counts by reason
+  summ_reason <- qc_dt[, .N, by = .(run_id, reason)][order(run_id, -N)]
+
+  # QC breakdown for unmapped categories
+  qc_break <- qc_dt[reason != "kept_mapped",
+                    .(
+                      N = .N,
+                      is_cell_true = sum(is_cell == TRUE, na.rm = TRUE),
+                      high_conf_true = sum(high_confidence == TRUE, na.rm = TRUE),
+                      productive_true = sum(productive == TRUE, na.rm = TRUE)
+                    ),
+                    by = .(run_id, reason)][order(run_id, -N)]
+
+  # Duplicate bookkeeping from FASTA header handling
+  dup_stats <- data.table(
+    run_id = run,
+    reason = c("dropped_duplicate_identical_sequence", "kept_header_made_unique_due_to_sequence_diff"),
+    N = c(length(removed_identical_dup_headers), length(unique(made_unique_headers)))
+  )
+
+  # Assemble QC summary (single file, stacked sections)
+  summ_out <- rbindlist(
+    list(
+      summ_reason[, .(run_id, metric = "fasta_contigs_by_reason", reason, value = N)],
+      qc_break[, .(run_id, metric = "unmapped_qc_counts", reason,
+                   value = N, is_cell_true, high_conf_true, productive_true)],
+      dup_stats[, .(run_id, metric = "fasta_duplicate_handling", reason, value = N)]
+    ),
+    use.names = TRUE, fill = TRUE
+  )
+
+  data.table::fwrite(summ_out, out_summ)
+
+  # -----------------------------
+  # Write per-run FASTA (mapped only) + index
+  # -----------------------------
+  x_out <- x[keep_fasta]
+  names(x_out) <- paste0(fasta_renamed[keep_fasta], fasta_suffix[keep_fasta])
+
+  # faidx requires unique names
+  if (anyDuplicated(names(x_out)) > 0) {
+    dn <- unique(names(x_out)[duplicated(names(x_out))])
+    message("Duplicate contig names AFTER renaming in run ", run, " (up to 20):")
+    message(paste(head(dn, 20), collapse = "\n"))
+    stop("Cannot index FASTA: duplicated contig headers after renaming in run ", run)
+  }
+
+  Biostrings::writeXStringSet(x_out, out_fasta, format = "fasta", width = 80)
+  Rsamtools::indexFa(out_fasta)
+
+  merged_fasta <- c(merged_fasta, x_out)
+
+  # =========================================================
+  # ANNOTATIONS CSV (update + write mapped-only)
+  # =========================================================
+  ann <- copy(ann0)
+
+  # infer sample_label per barcode base
+  ann[, sample_label := unname(bc_to_sample[bc_base])]
+
+  # build composite key and map to renamed barcode
+  ann[, key := ifelse(is.na(sample_label), NA_character_, paste0(bc_base, "__", sample_label))]
+  ann[, renamed_bc := unname(map_vec[key])]
+
+  # keep only mapped rows (consistent with FASTA output)
+  ann <- ann[!is.na(renamed_bc)]
+
+  # update barcode
+  ann[, barcode := renamed_bc]
+
+  # update contig_id: keep "_contig_X" suffix but replace barcode prefix
+  ann[, contig_suffix := sub("^.*(_contig_\\d+)$", "\\1", contig_id)]
+  ann[, contig_id := paste0(renamed_bc, contig_suffix)]
+
+  # update sample from Seurat meta Identity using renamed barcode
+  ann[, sample := unname(id_map[renamed_bc])]
+
+  # optional: keep track of run
+  ann[, run_id := run]
+
+  # cleanup helper cols
+  ann[, c("bc_base","sample_label","key","renamed_bc","contig_suffix") := NULL]
+
+  # write per-run updated annotations
+  data.table::fwrite(ann, out_annot)
+
+  # merge across runs
+  merged_annot <- if (is.null(merged_annot)) ann else data.table::rbindlist(list(merged_annot, ann), use.names = TRUE, fill = TRUE)
+
+  # store run summary for merged QC summary
+  all_run_summ[[run]] <- summ_out
+
+  message("Processed run (FASTA + annotations + QC summary): ", run)
+}
+
+# =========================================================
+# MERGED outputs
+# =========================================================
+merged_out_fa <- file.path(results_folder, "VDJ/Merged_Runs_all_contig.fasta")
+if (anyDuplicated(names(merged_fasta)) > 0) {
+  dn <- unique(names(merged_fasta)[duplicated(names(merged_fasta))])
+  message("Duplicate contig names in MERGED FASTA (up to 50):")
+  message(paste(head(dn, 50), collapse = "\n"))
+  stop("Duplicate contig names detected in merged FASTA. Check renamed_bc uniqueness across runs.")
+}
+Biostrings::writeXStringSet(merged_fasta, merged_out_fa, format = "fasta", width = 80)
+Rsamtools::indexFa(merged_out_fa)
+
+merged_out_csv <- file.path(results_folder, "VDJ/Merged_Runs_all_contig_annotations.csv")
+data.table::fwrite(merged_annot, merged_out_csv)
+
+# merged QC summary across runs
+merged_summ <- data.table::rbindlist(all_run_summ, use.names = TRUE, fill = TRUE)
+merged_summ_out <- file.path(results_folder, "VDJ/Merged_Runs_qc_summary.csv")
+data.table::fwrite(merged_summ, merged_summ_out)
+
+list(
+  merged_fasta = merged_out_fa,
+  merged_annotations = merged_out_csv,
+  merged_qc_summary = merged_summ_out
+)
+
+```
+
+## - Session Info
+
+```{r}
+library(tools)
+
+script_path <- rstudioapi::getSourceEditorContext()$path
+script_path_no_ext <- file_path_sans_ext(script_path)
+
+writeLines(capture.output(sessionInfo()), paste0(script_path_no_ext, '__Session_Info.txt'))
+```

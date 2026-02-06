@@ -1,0 +1,154 @@
+         START> MakeDB
+       COMMAND> igblast
+  ALIGNER_FILE> Merged_Runs_all_contig_igblast.fmt7
+      SEQ_FILE> Merged_Runs_all_contig.fasta
+       ASIS_ID> False
+    ASIS_CALLS> False
+      VALIDATE> strict
+      EXTENDED> True
+INFER_JUNCTION> False
+
+PROGRESS> 16:39:35 |Loading files       | 0.0 minPROGRESS> 16:39:37 |Done                | 0.0 min
+
+PROGRESS> 16:39:37 |                    |   0% (     0) 0.0 minPROGRESS> 16:39:49 |#                   |   5% ( 2,736) 0.2 minPROGRESS> 16:39:51 |##                  |  10% ( 5,472) 0.2 minPROGRESS> 16:39:52 |###                 |  15% ( 8,208) 0.3 minPROGRESS> 16:39:54 |####                |  20% (10,944) 0.3 minPROGRESS> 16:39:55 |#####               |  25% (13,680) 0.3 minPROGRESS> 16:39:57 |######              |  30% (16,416) 0.3 minPROGRESS> 16:39:58 |#######             |  35% (19,152) 0.4 minPROGRESS> 16:40:00 |########            |  40% (21,888) 0.4 minPROGRESS> 16:40:01 |#########           |  45% (24,624) 0.4 minPROGRESS> 16:40:03 |##########          |  50% (27,360) 0.4 minPROGRESS> 16:40:04 |###########         |  55% (30,096) 0.5 minPROGRESS> 16:40:05 |############        |  60% (32,832) 0.5 minPROGRESS> 16:40:08 |#############       |  65% (35,568) 0.5 minPROGRESS> 16:40:09 |##############      |  70% (38,304) 0.5 minPROGRESS> 16:40:11 |###############     |  75% (41,040) 0.6 minPROGRESS> 16:40:12 |################    |  80% (43,776) 0.6 minPROGRESS> 16:40:14 |#################   |  85% (46,512) 0.6 minPROGRESS> 16:40:15 |##################  |  90% (49,248) 0.6 minPROGRESS> 16:40:17 |################### |  95% (51,984) 0.7 minPROGRESS> 16:40:18 |####################| 100% (54,716) 0.7 min
+
+OUTPUT> Merged_Runs_all_contig_igblast_db-pass.tsv
+  PASS> 48888
+  FAIL> 5828
+   END> MakeDb
+
+MakeDb completed successfully. Moving processed outputs to /project/meadlab/kgurashi/CG__250425_10x/Results/10x/VDJ...
+Moved all files from /project/meadlab/kgurashi/CG__250425_10x/Results/10x/VDJ/processed to /project/meadlab/kgurashi/CG__250425_10x/Results/10x/VDJ.
+Deleted processed directory.
+Successfully processed: /project/meadlab/kgurashi/CG__250425_10x/Results/10x/VDJ/Merged_Runs_all_contig_igblast.fmt7
+Annotation file: /project/meadlab/kgurashi/CG__250425_10x/Results/10x/VDJ/Merged_Runs_all_contig_annotations.csv
+AIRR database created in: /project/meadlab/kgurashi/CG__250425_10x/Results/10x/VDJ
+CBB Profiling started Fri Feb  6 16:39:34 2026
+SLURM_JOB_ID		5032263
+REQ_CPU_CORES		16
+REQ_MEMORY_GB		48.000000
+Starting profiling...
+
+                                                                                
+                                                                                
+                                   CPU (cores)                                  
+  16 +----------------------------------------------------------------------+   
+     |       +       +       +       +      +       +       +       +       |   
+     |                                                                      |   
+  14 |-+                                                                  +-|   
+     |                                                                      |   
+     |                                                                      |   
+  12 |-+                                                                  +-|   
+     |                                                                      |   
+     |                                                                      |   
+  10 |-+                                                                  +-|   
+     |                                                                      |   
+   8 |-+                                                                  +-|   
+     |                                                                      |   
+     |                                                                      |   
+   6 |-+                                                                  +-|   
+     |                                                                      |   
+     |                                                                      |   
+   4 |-+                                                                  +-|   
+     |                                                                      |   
+     |                                                                      |   
+   2 |-+                                                                  +-|   
+     | #####                                                                |   
+     |#     ##############################################################  |   
+   0 +----------------------------------------------------------------------+   
+     0       5       10      15      20     25      30      35      40      45  
+                               Job profiling step                               
+                                                                                
+
+                                                                                
+                                                                                
+                                   Memory (GB)                                  
+  50 +----------------------------------------------------------------------+   
+     |********************************************************************  |   
+  45 |-+                                                                  +-|   
+     |                                                                      |   
+     |                                                                      |   
+  40 |-+                                                                  +-|   
+     |                                                                      |   
+  35 |-+                                                                  +-|   
+     |                                                                      |   
+  30 |-+                                                                  +-|   
+     |                                                                      |   
+  25 |-+                                                                  +-|   
+     |                                                                      |   
+     |                                                                      |   
+  20 |-+                                                                  +-|   
+     |                                                                      |   
+  15 |-+                                                                  +-|   
+     |                                                                      |   
+  10 |-+                                                                  +-|   
+     |                                                                      |   
+     |                                                                      |   
+   5 |-+                                                                  +-|   
+     |       +       +       +       +      +       +       +       +       |   
+   0 +----------------------------------------------------------------------+   
+     0       5       10      15      20     25      30      35      40      45  
+                               Job profiling step                               
+                                                                                
+
+                                                                                
+                                                                                
+                                  Data read (GB)                                
+    1 +---------------------------------------------------------------------+   
+      |       +       +      +       +       +       +      +       +       |   
+      |                                                                     |   
+      |                                                                     |   
+      |                                                                     |   
+      |                                                                     |   
+  0.5 |-+                                                                 +-|   
+      |                                                                     |   
+      |                                                                     |   
+      |                                                                     |   
+      |                                                                     |   
+    0 |###################################################################+-|   
+      |                                                                     |   
+      |                                                                     |   
+      |                                                                     |   
+      |                                                                     |   
+      |                                                                     |   
+ -0.5 |-+                                                                 +-|   
+      |                                                                     |   
+      |                                                                     |   
+      |                                                                     |   
+      |                                                                     |   
+      |       +       +      +       +       +       +      +       +       |   
+   -1 +---------------------------------------------------------------------+   
+      0       5       10     15      20      25      30     35      40      45  
+                                Job profiling step                              
+                                                                                
+
+                                                                                
+                                                                                
+                                 Data written (GB)                              
+   0.1 +--------------------------------------------------------------------+   
+       |       +      +       +       +      +       +       +      +   ##  |   
+  0.09 |-+                                                           ###  +-|   
+       |                                                            #       |   
+       |                                                          ##        |   
+  0.08 |-+                                                       #        +-|   
+       |                                                       ##           |   
+  0.07 |-+                                                    #           +-|   
+       |                                                    ##              |   
+  0.06 |-+                                               ###              +-|   
+       |                                            #####                   |   
+  0.05 |-+                                         #                      +-|   
+       |                                         ##                         |   
+       |                                        #                           |   
+  0.04 |-+                                    ##                          +-|   
+       |                                   ###                              |   
+  0.03 |-+                                #                               +-|   
+       |                                ##                                  |   
+  0.02 |-+                           ###                                  +-|   
+       |                            #                                       |   
+       |                          ##                                        |   
+  0.01 |-+                     ###                                        +-|   
+       |       +      +      ##       +      +       +       +      +       |   
+     0 +--------------------------------------------------------------------+   
+       0       5      10      15      20     25      30      35     40      45  
+                                Job profiling step                              
+                                                                                
