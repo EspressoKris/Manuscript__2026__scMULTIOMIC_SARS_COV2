@@ -1,0 +1,592 @@
+---
+title: "Figures"
+output: html_document
+date: '2023-04-05'
+---
+
+# 1. Setup
+
+## - Setting work directories
+
+Defining work directory within rmarkdown chunk
+
+```{r setup, include=TRUE}
+local_wd_folder = dirname(dirname(dirname(rstudioapi::getSourceEditorContext()$path)))
+knitr::opts_knit$set(root.dir = local_wd_folder)
+```
+
+```{r}
+setwd(local_wd_folder)
+```
+
+## - Setting seed
+
+This step ensures reproducibility in randomized processes
+
+```{r}
+set.seed(seed = 123, kind = "Mersenne-Twister", normal.kind = "Inversion")
+```
+
+## - Options
+
+```{r}
+options(Seurat.object.assay.version = 'v3')
+```
+
+## - Loading libraries
+
+```{r}
+library(SingleCellExperiment)
+library(Seurat)
+library(scuttle)
+library(scater)
+library(dplyr)
+library(stringr)
+library(R.utils)
+library(gridExtra)
+library(scDblFinder)
+library(Biostrings)
+library(Rsamtools)
+library(showtext)
+library(tidyr)
+library(ggprism)
+library(harmony)
+```
+
+## - Defining input data and output directories
+
+```{r}
+data_folder = paste0(local_wd_folder, '/Data/10x')
+results_folder = paste0(local_wd_folder, '/Results/10x')
+Input_data = paste(data_folder, '/Per_Sample_Demultiplexed_Mapped_Data', sep = '')
+
+dir.create(path = paste(results_folder, '/VDJ', sep = ''), showWarnings = F)
+```
+
+## - Loading palettes
+
+```{r}
+# Load additional colour palette packages
+library(unikn, quietly = TRUE)
+library(RColorBrewer, quietly = TRUE)
+library(yarrr, quietly = TRUE)
+library(scales, quietly = TRUE)
+library(ggsci, quietly = TRUE)
+
+# Define a set of custom color palettes from the unikn package
+mix_1 <- usecol(pal = c(Karpfenblau, "white", Peach), n = 15)
+mix_2 <- usecol(pal = c(rev(pal_seeblau), "white", pal_pinky))
+mix_3 <- usecol(pal = c(rev(pal_bordeaux), "white", pal_petrol), n = 15)
+
+# Display the custom palettes
+seecol(list(mix_1, mix_2, mix_3), col_brd = "white", lwd_brd = 4, title = "Comparing palettes mixed from unikn colors", pal_names = c("mix_1", "mix_2", "mix_3"))
+
+# Define a second set of custom palettes from the RColorBrewer and yarrr packages
+brew_mix <- usecol(c(rev(brewer.pal(n = 4, name = "Reds")), "white", brewer.pal(n = 4, name = "Blues")), n = 13)
+brew_ext <- usecol(brewer.pal(n = 11, name = "Spectral"), n = 12)
+yarrr_mix <- usecol(c(piratepal("nemo"), piratepal("bugs")))
+yarrr_mod <- usecol(c(piratepal("ipod")), n = 9)
+
+gradient_exp <- rev(c('#FFAB01', '#FC8805', '#FC5D05', '#D92211', "#D9043D", "#A6036D", "#7C038C", "#5503A6", "#A69AEE", '#D9D4F7', "#FFFFFF", "#F4F7FF", '#E9EBEF'))
+
+# Display the second set of custom palettes
+seecol(pal = list(brew_mix, brew_ext, yarrr_mix, yarrr_mod), col_brd = "white", lwd_brd = 2, title = "Using usecol() and seecol() to mix and modify palettes", pal_names = c("brew_mix", "brew_ext", "yarrr_mix", "yarrr_mod"))
+
+# Define additional custom palettes from the scales package
+natjournals_palette <- pal_npg("nrc")(10)
+```
+
+```{r}
+#Tableau 10 color panel
+tableau_10 = c("steelblue4", "darkorange1", "brown3", "lightseagreen",  "forestgreen", "gold1", "darkorchid2", "palevioletred1", "lightsalmon4", "seashell3")
+#Tableau 20 color panel
+tableau_20 = c("steelblue4", "skyblue", "darkorange1", "sandybrown", "forestgreen", "lightgreen", "gold4", "gold1", "turquoise4", "lightseagreen", "brown3", "indianred1", "gray34", "seashell3", "palevioletred3", "lightpink", "darkorchid2", "plum", "lightsalmon4", "peachpuff3")
+#Tableau color blind panel
+tableau_cblind = c("dodgerblue4", "chocolate1", "slategray3", "grey30", "cornflowerblue", "orangered3", "lightsteelblue4", "skyblue", "bisque1", "azure3")
+```
+
+# 2. INPUT: Importing pre-filtered samples
+
+```{r}
+Merged.SeuratObj <- readRDS(paste(data_folder, 'SC_Objects', 'Added_VDJ.rds', sep = '/'))
+
+df_bcr <- read.table(file.path(results_folder, 'VDJ', 'Comprehensive_sc_metadata_with_BCR.tsv'), 
+  sep = "\t", header = T, check.names = FALSE)
+```
+
+# 3. Classification
+
+```{r}
+# =========================================
+# 2. Define Antigen Columns
+# =========================================
+
+wt_cols  <- c("Spike-1-WT", "Spike-2-WT", "RBD-WT", "NTD-WT")
+bti_cols <- c("Spike-1-BTI", "Spike-2-BTI", "RBD-BTI", "NTD-BTI")
+all_antigens <- c(wt_cols, bti_cols)
+
+# =========================================
+# 2b. Flag Known Contaminated Runs (WT only)
+# =========================================
+
+df_bcr <- df_bcr %>%
+  dplyr::mutate(
+    contaminated = Identity %in% c(
+      # RBD-WT contaminated runs
+      "VA013_T8_GB",
+      "VA013_T8_Ambiguous",
+      # NTD-WT contaminated runs
+      "VA013_T5_GB",
+      "VA013_T5_Ambiguous",
+      "VA025_T5_GB",
+      "VA025_T5_Ambiguous",
+      "VA025_T8_GB",
+      "VA025_T8_Ambiguous"
+    )
+  )
+
+# =========================================
+# 3. Classify Rows
+# =========================================
+
+df_bcr <- df_bcr %>%
+  rowwise() %>%
+  mutate(
+    n_positive = sum(c_across(all_of(all_antigens)) > 0, na.rm = TRUE),
+    wt_positive  = any(c_across(all_of(wt_cols))  > 0, na.rm = TRUE),
+    bti_positive = any(c_across(all_of(bti_cols)) > 0, na.rm = TRUE),
+    rbd_positive = any(c_across(c("RBD-WT", "RBD-BTI")) > 0, na.rm = TRUE),
+    ntd_positive = any(c_across(c("NTD-WT", "NTD-BTI")) > 0, na.rm = TRUE),
+    
+    rbd_wt  = `RBD-WT`  > 0,
+    rbd_bti = `RBD-BTI` > 0,
+    ntd_wt  = `NTD-WT`  > 0,
+    ntd_bti = `NTD-BTI` > 0,
+    
+    domain_mismatch = (
+      (rbd_wt  & !rbd_bti & bti_positive) |
+        (rbd_bti & !rbd_wt  & wt_positive)  |
+        (ntd_wt  & !ntd_bti & bti_positive) |
+        (ntd_bti & !ntd_wt  & wt_positive)
+    )
+  ) %>%
+  mutate(
+    logic = case_when(
+      contaminated ~ "contaminated",
+      n_positive == 0 ~ "negative",
+      `CTRL.1` > 0 ~ "background",
+      n_positive < 2 ~ "background",
+      rbd_positive & ntd_positive ~ "impossible",
+      wt_positive & bti_positive & domain_mismatch ~ "improbable",
+      TRUE ~ "clear"
+    ),
+    
+    strain = case_when(
+      logic %in% c("background","impossible","negative","contaminated") ~ NA_character_,
+      wt_positive & !bti_positive ~ "WT",
+      bti_positive & !wt_positive ~ "BTI",
+      wt_positive & bti_positive  ~ "Bispecific",
+      TRUE ~ NA_character_
+    ),
+    
+    region = case_when(
+      logic != "clear" ~ NA_character_,
+      rbd_positive ~ "RBD",
+      ntd_positive ~ "NTD",
+      TRUE ~ "Spike only"
+    )
+  ) %>%
+  ungroup() %>%
+  select(-n_positive, -wt_positive, -bti_positive,
+         -rbd_positive, -ntd_positive,
+         -rbd_wt, -rbd_bti, -ntd_wt, -ntd_bti,
+         -domain_mismatch)
+
+write.csv(
+  df_bcr,
+  file = file.path(results_folder, "VDJ", "BCR_data_integrated_classified.csv"),
+  row.names = FALSE,
+  na = ""
+)
+
+# =========================================
+# 4. Summarize Clones
+# =========================================
+# ---- 4a. Identify "clear" clones appearing >= 2 times ----
+
+clear_clones <- df_bcr %>%
+  filter(logic == "clear") %>%
+  count(clone_id) %>%
+  filter(n >= 2) %>%
+  pull(clone_id)
+
+# ---- 4b. Clone x logic summary ----
+clone_summary <- df_bcr %>%
+  filter(clone_id %in% clear_clones) %>%
+  count(clone_id, logic) %>%
+  pivot_wider(names_from = logic, values_from = n, values_fill = 0) %>%
+  arrange(clone_id)
+
+cat("=== All clones appearing >= 2 times in 'clear' ===\n")
+
+write.csv(
+  clone_summary,
+  file = file.path(results_folder, "VDJ", "Clone_summary.csv"),
+  row.names = FALSE,
+  na = ""
+)
+
+# ---- 4c. Clone x region summary ----
+clone_region_summary <- df_bcr %>%
+  filter(clone_id %in% clear_clones) %>%
+  count(clone_id, region) %>%
+  pivot_wider(names_from = region, values_from = n, values_fill = 0) %>%
+  rowwise() %>%
+  mutate(
+    multi = ifelse(sum(c_across(c("NTD", "Spike only", "RBD")) > 0) > 1, "Y", "N")
+  ) %>%
+  ungroup()
+
+cat("=== All clones appearing >= 2 times in 'clear' (region) ===\n")
+
+write.csv(
+  clone_region_summary,
+  file = file.path(results_folder, "VDJ", "Clone_region_summary.csv"),
+  row.names = FALSE,
+  na = ""
+)
+
+# ---- 4d. Clone x Donor matrix ----
+clone_donor_matrix <- df_bcr %>%
+  filter(clone_id %in% clear_clones) %>%
+  count(clone_id, Donor) %>%
+  pivot_wider(names_from = Donor, values_from = n, values_fill = 0) %>%
+  rowwise() %>%
+  mutate(
+    multi = ifelse(sum(c_across(-clone_id) > 0) > 1, "Y", "N")
+  ) %>%
+  ungroup()
+
+cat("=== Clone x Donor matrix (multi indicates clone in multiple donors) ===\n")
+
+write.csv(
+  clone_donor_matrix,
+  file = file.path(results_folder, "VDJ", "Clone_donor_matrix.csv"),
+  row.names = FALSE,
+  na = ""
+)
+
+# =========================================
+# 5. Identify Clones to Rescue
+# =========================================
+
+rescue_clones <- clone_region_summary %>%
+  filter(multi == "N") %>%
+  pull(clone_id)
+
+# =========================================
+# 6. Create Rescued Dataframe
+# =========================================
+
+eligible_for_rescue <- df_bcr %>%
+  filter(clone_id %in% rescue_clones & 
+           logic %in% c("background","improbable","impossible","negative","contaminated"))
+
+clone_reference <- df_bcr %>%
+  filter(clone_id %in% rescue_clones & logic == "clear") %>%
+  select(clone_id, strain, region) %>%
+  group_by(clone_id) %>%
+  summarise(
+    strain_ref = first(na.omit(strain)),
+    region_ref = first(na.omit(region)),
+    .groups = "drop"
+  )
+
+rescued_rows <- eligible_for_rescue %>%
+  left_join(clone_reference, by = "clone_id") %>%
+  mutate(
+    logic = "rescued",
+    strain = strain_ref,
+    region = region_ref
+  ) %>%
+  select(-strain_ref, -region_ref)
+
+df_bcr_rescued <- df_bcr %>%
+  filter(!(clone_id %in% rescue_clones & 
+             logic %in% c("background","improbable","impossible","negative","contaminated"))) %>%
+  bind_rows(rescued_rows)
+
+n_rescued <- sum(df_bcr_rescued$logic == "rescued")
+cat("Number of rows updated to 'rescued':", n_rescued, "\n")
+
+write.csv(
+  df_bcr_rescued,
+  file = file.path(results_folder, "VDJ", "BCR_data_integrated_classified_with_rescued.csv"),
+  row.names = FALSE,
+  na = ""
+)
+
+# =========================================
+# 7. Summarize and Plot Logic Classification
+# =========================================
+
+# Tableau 10 color panel
+tableau10_colors <- c(
+  "steelblue4", "darkorange1", "brown3", "lightseagreen",
+  "forestgreen", "gold1", "darkorchid2", "palevioletred1",
+  "lightsalmon4", "seashell3"
+)
+
+# Tableau color blind panel
+tableau_cb_colors <- c(
+  "dodgerblue4", "chocolate1", "slategray3", "grey30",
+  "cornflowerblue", "orangered3", "lightsteelblue4", "skyblue",
+  "bisque1", "azure3"
+)
+
+if("dataset" %in% colnames(df_bcr_rescued)) {
+  logic_summary <- df_bcr_rescued %>%
+    count(dataset, logic)
+} else {
+  logic_summary <- df_bcr_rescued %>%
+    count(logic) %>%
+    mutate(dataset = "All Data")
+}
+
+ggplot(logic_summary, aes(x = logic, y = n, fill = logic)) +
+  geom_bar(stat = "identity", color = "black", width = 0.7) +
+  facet_wrap(~ dataset, ncol = 1) +
+  coord_flip() +
+  scale_fill_manual(values = tableau_cb_colors) +
+  theme_prism(base_size = 10) +
+  labs(
+    title = "Breakdown of Logic Classification",
+    x = "Logic Category",
+    y = "Number of Rows",
+    fill = "Logic"
+  ) +
+  theme(
+    plot.title   = element_text(family = "Arial", size = 20, face = "plain", hjust = 0.5),
+    axis.title   = element_text(family = "Arial", size = 16, face = "plain"),
+    axis.text    = element_text(family = "Arial", size = 14, face = "plain"),
+    strip.text   = element_text(family = "Arial", size = 18, face = "plain"),
+    legend.title = element_text(family = "Arial", size = 16, face = "plain"),
+    legend.text  = element_text(family = "Arial", size = 14, face = "plain"),
+    legend.position = "none"
+  ) +
+  scale_y_continuous(expand = c(0,0))
+
+# Add data back
+
+rownames(df_bcr_rescued) <- df_bcr_rescued$cell_id
+
+Merged.SeuratObj@meta.data[,'contaminated'] <- df_bcr_rescued[rownames(Merged.SeuratObj@meta.data),'contaminated']
+Merged.SeuratObj@meta.data[,'logic'] <- df_bcr_rescued[rownames(Merged.SeuratObj@meta.data),'logic']
+Merged.SeuratObj@meta.data[,'strain'] <- df_bcr_rescued[rownames(Merged.SeuratObj@meta.data),'strain']
+Merged.SeuratObj@meta.data[,'region'] <- df_bcr_rescued[rownames(Merged.SeuratObj@meta.data),'region']
+```
+
+```{r}
+saveRDS(Merged.SeuratObj, paste(data_folder, 'SC_Objects', 'VDJ_Filtered.rds', sep = '/'))
+```
+
+# 4. Memory subclustering
+
+```{r}
+Merged.SeuratObj.Memory <- subset(Merged.SeuratObj, cells = WhichCells(Merged.SeuratObj, expression = Celltype %in% c('Class switched memory B-cells', 'Atypical memory B-cells')))
+
+Run_S1081_L364A.SeuratObj.Memory <- subset(Merged.SeuratObj.Memory, cells = WhichCells(Merged.SeuratObj.Memory, expression = Run %in% 'S1081_L364A'))
+
+Run_S1146_L364B.SeuratObj.Memory <- subset(Merged.SeuratObj.Memory, cells = WhichCells(Merged.SeuratObj.Memory, expression = Run %in% 'S1146_L364B'))
+
+Run_S1146_L364C.SeuratObj.Memory <- subset(Merged.SeuratObj.Memory, cells = WhichCells(Merged.SeuratObj.Memory, expression = Run %in% 'S1146_L364C'))
+
+Run_S1146_L364D.SeuratObj.Memory <- subset(Merged.SeuratObj.Memory, cells = WhichCells(Merged.SeuratObj.Memory, expression = Run %in% 'S1146_L364D'))
+```
+
+```{r}
+Run_S1081_L364A.SeuratObj.Memory <- SCTransform(Run_S1081_L364A.SeuratObj.Memory, 
+                                         return.only.var.genes = F,
+                                         assay = 'RNA', new.assay.name = 'SCT', 
+                                         variable.features.n = 4000)
+
+Run_S1146_L364B.SeuratObj.Memory <- SCTransform(Run_S1146_L364B.SeuratObj.Memory, 
+                                         return.only.var.genes = F,
+                                         assay = 'RNA', new.assay.name = 'SCT', 
+                                         variable.features.n = 4000)
+
+Run_S1146_L364C.SeuratObj.Memory <- SCTransform(Run_S1146_L364C.SeuratObj.Memory, 
+                                         return.only.var.genes = F,
+                                         assay = 'RNA', new.assay.name = 'SCT', 
+                                         variable.features.n = 4000)
+
+Run_S1146_L364D.SeuratObj.Memory <- SCTransform(Run_S1146_L364D.SeuratObj.Memory, 
+                                         return.only.var.genes = F,
+                                         assay = 'RNA', new.assay.name = 'SCT', 
+                                         variable.features.n = 4000)
+```
+
+```{r}
+Ig_genes <- read.table(file.path(results_folder, "QC", 
+                             "Expression", "Immunoglobulin_genes.txt"), header = T)$IG_Genes
+
+VarGenes <- SelectIntegrationFeatures(
+  list(Run_S1081_L364A.SeuratObj.Memory, 
+       Run_S1146_L364B.SeuratObj.Memory,
+       Run_S1146_L364C.SeuratObj.Memory,
+       Run_S1146_L364D.SeuratObj.Memory),
+  nfeatures = 4000,
+  assay = rep('SCT',4),
+  verbose = TRUE,
+  fvf.nfeatures = 4000,
+)
+
+VarGenes.No.IG <- VarGenes[grep(FALSE, VarGenes %in% unique(c(Ig_genes)))][1:3000]
+
+write.table(x = VarGenes.No.IG, quote = F, 
+            row.names = F, col.names = 'Variable_Genes',
+            file = file.path(results_folder, "QC", 
+                             "Expression", "Variable_genes_B_memory.txt"))
+```
+
+```{r}
+Run_S1081_L364A.SeuratObj.Memory <- SCTransform(Run_S1081_L364A.SeuratObj.Memory, 
+                                         return.only.var.genes = T,
+                                         assay = 'RNA', new.assay.name = 'SCT', 
+                                         residual.features = VarGenes.No.IG)
+
+Run_S1146_L364B.SeuratObj.Memory <- SCTransform(Run_S1146_L364B.SeuratObj.Memory, 
+                                         return.only.var.genes = T,
+                                         assay = 'RNA', new.assay.name = 'SCT', 
+                                         residual.features = VarGenes.No.IG)
+
+Run_S1146_L364C.SeuratObj.Memory<- SCTransform(Run_S1146_L364C.SeuratObj.Memory, 
+                                         return.only.var.genes = T,
+                                         assay = 'RNA', new.assay.name = 'SCT', 
+                                         residual.features = VarGenes.No.IG)
+
+Run_S1146_L364D.SeuratObj.Memory <- SCTransform(Run_S1146_L364D.SeuratObj.Memory, 
+                                         return.only.var.genes = T,
+                                         assay = 'RNA', new.assay.name = 'SCT', 
+                                         residual.features = VarGenes.No.IG)
+```
+
+```{r}
+Merged.SeuratObj.Memory <- merge(x = Run_S1081_L364A.SeuratObj.Memory, 
+                          y = c(Run_S1146_L364B.SeuratObj.Memory,
+                                Run_S1146_L364C.SeuratObj.Memory,
+                                Run_S1146_L364D.SeuratObj.Memory))
+```
+
+```{r}
+set.seed(123)
+
+Merged.SeuratObj.Memory <- PrepSCTFindMarkers(Merged.SeuratObj.Memory)
+
+Merged.SeuratObj.Memory@assays$SCT@var.features <- VarGenes.No.IG
+```
+
+```{r}
+set.seed(123)
+
+# Run PCA on SCT assay
+Merged.SeuratObj.Memory <- RunPCA(
+  Merged.SeuratObj.Memory, 
+  assay = 'SCT', 
+  features = VarGenes.No.IG,
+  verbose = TRUE
+)
+
+digest::digest(Merged.SeuratObj.Memory@reductions$pca@cell.embeddings)
+#93192ae38fba3cb51042d45a3e837085
+
+# These are now standard steps in the Seurat workflow for visualization and clustering
+elbow_plot <- ElbowPlot(object = Merged.SeuratObj.Memory, ndims = 40)
+
+print(elbow_plot)
+```
+
+```{r}
+seed.use = 123
+
+Merged.SeuratObj.Memory <- RunUMAP(Merged.SeuratObj.Memory, dims=1:11, reduction = 'pca', 
+                            reduction.name = 'umap', reduction.key = 'umap', 
+                            spread=0.35, min.dist=0.75, n.neighbors=50, 
+                            n.epochs = 200, return.model = T, seed.use = 123)
+```
+
+```{r}
+seed.use = 123
+
+Merged.SeuratObj.Memory <- RunHarmony(Merged.SeuratObj.Memory, 
+                               group.by.vars = c('Timepoint', 'Donor', 'Identity'), 
+                               lambda=c(0.5,1,1),
+                               dims.use = 1:11, max_iter = 50)
+```
+
+```{r}
+seed.use = 123
+
+Merged.SeuratObj.Memory <- RunUMAP(Merged.SeuratObj.Memory, dims=1:11, reduction = 'harmony', 
+                            reduction.name = 'h_umap', reduction.key = 'h_umap', 
+                            spread=0.35, min.dist=0.75, n.neighbors=50, 
+                            n.epochs = 200, return.model = T, seed.use = 123)
+```
+
+```{r}
+set.seed(123)
+
+Merged.SeuratObj.Memory <- FindNeighbors(Merged.SeuratObj.Memory, assay = 'harmony')
+
+set.seed(123)
+
+Merged.SeuratObj.Memory <- FindClusters(Merged.SeuratObj.Memory, algorithm=4, resolution = 0.2, random.seed = 123)
+
+DimPlot(Merged.SeuratObj.Memory, group.by = 'seurat_clusters', label = T, reduction = 'h_umap')
+```
+
+```{r}
+DEGs <- FindAllMarkers(Merged.SeuratObj.Memory)
+
+DEGs$pct.2_v_1 <- DEGs$pct.2 - DEGs$pct.1
+
+top50_by_cluster <- DEGs %>%
+  mutate(pct.2_v_1 = `pct.1` - `pct.2`) %>%
+  group_by(cluster) %>%
+  arrange(desc(pct.2_v_1), .by_group = TRUE) %>%
+  slice_head(n = 50) %>%
+  ungroup()
+```
+
+```{r}
+activated_cells <- intersect(WhichCells(Merged.SeuratObj.Memory, expression = Celltype %in% 'Class switched memory B-cells'), WhichCells(Merged.SeuratObj.Memory, expression = seurat_clusters %in% '1'))
+
+Merged.SeuratObj.Memory@meta.data[activated_cells,'Celltype'] <- 'Class switched memory B-cells activated'
+```
+
+```{r}
+saveRDS(Merged.SeuratObj.Memory, paste(data_folder, 'SC_Objects', 'Memory_Subset.rds', sep = '/'))
+```
+
+```{r}
+Merged.SeuratObj@meta.data[,'Is_activated'] <- 'Non activated'
+Merged.SeuratObj@meta.data[WhichCells(Merged.SeuratObj.Memory, expression = Celltype %in% 'Class switched memory B-cells activated'),'Is_activated'] <- 'Activated'
+
+Merged.SeuratObj@meta.data[,'Celltype_with_activated'] <- Merged.SeuratObj$Celltype
+Merged.SeuratObj@meta.data[WhichCells(Merged.SeuratObj.Memory, expression = Celltype %in% 'Class switched memory B-cells activated'),'Celltype_with_activated'] <- 'Class switched memory B-cells activated'
+```
+
+```{r}
+saveRDS(Merged.SeuratObj, paste(data_folder, 'SC_Objects', 'VDJ_Filtered_with_activated.rds', sep = '/'))
+```
+
+# - Session Info
+
+```{r}
+library(tools)
+
+script_path <- rstudioapi::getSourceEditorContext()$path
+script_path_no_ext <- file_path_sans_ext(script_path)
+
+writeLines(capture.output(sessionInfo()), paste0(script_path_no_ext, '__Session_Info.txt'))
+```

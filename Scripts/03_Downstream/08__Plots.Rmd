@@ -1,0 +1,1012 @@
+---
+title: "Figures"
+output: html_document
+date: '2023-04-05'
+---
+
+# 1. Setup
+
+## - Setting work directories
+
+Defining work directory within rmarkdown chunk
+
+```{r setup, include=TRUE}
+local_wd_folder = dirname(dirname(dirname(rstudioapi::getSourceEditorContext()$path)))
+knitr::opts_knit$set(root.dir = local_wd_folder)
+```
+
+```{r}
+setwd(local_wd_folder)
+```
+
+## - Setting seed
+
+This step ensures reproducibility in randomized processes
+
+```{r}
+set.seed(seed = 123, kind = "Mersenne-Twister", normal.kind = "Inversion")
+```
+
+## - Options
+
+```{r}
+options(Seurat.object.assay.version = 'v3')
+```
+
+## - Loading libraries
+
+```{r}
+library(SingleCellExperiment)
+library(Seurat)
+library(scuttle)
+library(scater)
+library(dplyr)
+library(stringr)
+library(R.utils)
+library(gridExtra)
+library(scDblFinder)
+library(Biostrings)
+library(Rsamtools)
+library(showtext)
+```
+
+## - Defining input data and output directories
+
+```{r}
+data_folder = paste0(local_wd_folder, '/Data/10x')
+results_folder = paste0(local_wd_folder, '/Results/10x')
+Input_data = paste(data_folder, '/Per_Sample_Demultiplexed_Mapped_Data', sep = '')
+
+dir.create(path = paste(results_folder, '/VDJ', sep = ''), showWarnings = F)
+```
+
+## - Loading palettes
+
+```{r}
+# Load additional colour palette packages
+library(unikn, quietly = TRUE)
+library(RColorBrewer, quietly = TRUE)
+library(yarrr, quietly = TRUE)
+library(scales, quietly = TRUE)
+library(ggsci, quietly = TRUE)
+
+# Define a set of custom color palettes from the unikn package
+mix_1 <- usecol(pal = c(Karpfenblau, "white", Peach), n = 15)
+mix_2 <- usecol(pal = c(rev(pal_seeblau), "white", pal_pinky))
+mix_3 <- usecol(pal = c(rev(pal_bordeaux), "white", pal_petrol), n = 15)
+
+# Display the custom palettes
+seecol(list(mix_1, mix_2, mix_3), col_brd = "white", lwd_brd = 4, title = "Comparing palettes mixed from unikn colors", pal_names = c("mix_1", "mix_2", "mix_3"))
+
+# Define a second set of custom palettes from the RColorBrewer and yarrr packages
+brew_mix <- usecol(c(rev(brewer.pal(n = 4, name = "Reds")), "white", brewer.pal(n = 4, name = "Blues")), n = 13)
+brew_ext <- usecol(brewer.pal(n = 11, name = "Spectral"), n = 12)
+yarrr_mix <- usecol(c(piratepal("nemo"), piratepal("bugs")))
+yarrr_mod <- usecol(c(piratepal("ipod")), n = 9)
+
+gradient_exp <- rev(c('#FFAB01', '#FC8805', '#FC5D05', '#D92211', "#D9043D", "#A6036D", "#7C038C", "#5503A6", "#A69AEE", '#D9D4F7', "#FFFFFF", "#F4F7FF", '#E9EBEF'))
+
+# Display the second set of custom palettes
+seecol(pal = list(brew_mix, brew_ext, yarrr_mix, yarrr_mod), col_brd = "white", lwd_brd = 2, title = "Using usecol() and seecol() to mix and modify palettes", pal_names = c("brew_mix", "brew_ext", "yarrr_mix", "yarrr_mod"))
+
+# Define additional custom palettes from the scales package
+natjournals_palette <- pal_npg("nrc")(10)
+```
+
+```{r}
+#Tableau 10 color panel
+tableau_10 = c("steelblue4", "darkorange1", "brown3", "lightseagreen",  "forestgreen", "gold1", "darkorchid2", "palevioletred1", "lightsalmon4", "seashell3")
+#Tableau 20 color panel
+tableau_20 = c("steelblue4", "skyblue", "darkorange1", "sandybrown", "forestgreen", "lightgreen", "gold4", "gold1", "turquoise4", "lightseagreen", "brown3", "indianred1", "gray34", "seashell3", "palevioletred3", "lightpink", "darkorchid2", "plum", "lightsalmon4", "peachpuff3")
+#Tableau color blind panel
+tableau_cblind = c("dodgerblue4", "chocolate1", "slategray3", "grey30", "cornflowerblue", "orangered3", "lightsteelblue4", "skyblue", "bisque1", "azure3")
+```
+
+# 2. INPUT: Importing pre-filtered samples
+
+```{r}
+Merged.SeuratObj <- readRDS(paste(data_folder, 'SC_Objects', 'Added_VDJ.rds', sep = '/'))
+```
+
+# 3. Figure 1
+
+```{r}
+Merged.SeuratObj$Donor_timepoint <- factor(Merged.SeuratObj$Donor_timepoint, 
+                                           levels = c('VA013_T5', 'VA013_T8', 'VA022_T5', 'VA022_T8',
+                                                      'VA025_T5', 'VA025_T8', 'VA035_T5', 'VA035_T8',
+                                                      'VA038_T5', 'VA038_T8', 'VA059_T5', 'VA059_T8'))
+```
+
+## - UMAP ALL by celltype
+
+```{r}
+library(ggplot2)
+
+cols <- c(
+  "Naive B-cells"                 = "#E15759",
+  "Transitional B-cells"          = "#EDC948",
+  "Atypical memory B-cells"       = "#F28E2B",
+  "IgM memory B-cells"            = "#76B7B2",
+  "Class switched memory B-cells" = "#4E79A7",
+  "CD4+ T-cells"                  = "#9C755F",
+  "CD8+ T-cells"                  = "#BAB0AC",
+  "NK cells"                      = "#59A14F",
+  "CD14+ monocytes"               = "#FF9DA7",
+  "CD16+ monocytes"               = "#B07AA1",
+  "Dendritic cells"               = "#B6992D"
+)
+
+# --------------------------------------------------
+# Base plot (WITH legend)
+# --------------------------------------------------
+
+plot_base <- SCpubr::do_DimPlot(
+  Merged.SeuratObj,
+  reduction   = "h_umap",
+  group.by    = "Celltype",
+  border.size = 2,
+  pt.size     = 1
+) +
+  scale_color_manual(values = cols, breaks = names(cols)) +
+  xlab("UMAP-1") + ylab("UMAP-2") +
+  theme(legend.position = "bottom") +
+  ggtitle(
+    label = "Integrated",
+    subtitle = paste0("N = ", ncol(Merged.SeuratObj))
+  ) +
+  guides(
+    color = guide_legend(
+      ncol = 3,
+      override.aes = list(
+        shape  = 21,
+        fill   = unname(cols),
+        colour = "black",
+        stroke = 0.8,
+        size   = 3
+      )
+    )
+  )
+
+# --------------------------------------------------
+# No-legend version
+# --------------------------------------------------
+
+plot_nolegend <- plot_base +
+  theme(legend.position = "none")
+
+# --------------------------------------------------
+# Save WITH legend
+# --------------------------------------------------
+
+png(
+  filename = paste0(results_folder,
+                    "/Phenotype/UMAP_ALL_coloured_by_celltype_WITH_legend.png"),
+  width = 9*0.75,
+  height = 11*0.75,
+  res = 300,
+  units = "in",
+  type = "cairo"
+)
+print(plot_base)
+dev.off()
+
+pdf(
+  file = paste0(results_folder,
+                "/Phenotype/UMAP_ALL_coloured_by_celltype_WITH_legend.pdf"),
+  width = 9*0.75,
+  height = 11*0.75
+)
+print(plot_base)
+dev.off()
+
+# --------------------------------------------------
+# Save WITHOUT legend
+# --------------------------------------------------
+
+png(
+  filename = paste0(results_folder,
+                    "/Phenotype/UMAP_ALL_coloured_by_celltype_NO_legend.png"),
+  width = 9*0.70,
+  height = 9*0.75,
+  res = 300,
+  units = "in",
+  type = "cairo"
+)
+print(plot_nolegend)
+dev.off()
+
+pdf(
+  file = paste0(results_folder,
+                "/Phenotype/UMAP_ALL_coloured_by_celltype_NO_legend.pdf"),
+  width = 9*0.70,
+  height = 9*0.75
+)
+print(plot_nolegend)
+dev.off()
+
+```
+
+## - UMAP ALL by donors
+
+```{r}
+library(ggplot2)
+
+cols <- c(
+  "VA013_T5"           = "skyblue",
+  "VA013_T8"           = "steelblue4",
+  "VA022_T5"           = "sandybrown",
+  "VA022_T8"           = "darkorange1",
+  "VA025_T5"           = "lightgreen",
+  "VA025_T8"           = "forestgreen",
+  "VA035_T5"           = "gold1",
+  "VA035_T8"           = "gold4",
+  "VA038_T5"           = "lightseagreen",
+  "VA038_T8"           = "turquoise4",
+  "VA059_T5"           = "indianred1",
+  "VA059_T8"           = "brown3"
+)
+
+# --------------------------------------------------
+# Base plot (WITH legend)
+# --------------------------------------------------
+
+plot_base <- SCpubr::do_DimPlot(
+  Merged.SeuratObj,
+  reduction   = "h_umap",
+  group.by    = "Donor_timepoint",
+  border.size = 2,
+  pt.size     = 1
+) +
+  scale_color_manual(values = cols, breaks = names(cols)) +
+  xlab("UMAP-1") + ylab("UMAP-2") +
+  theme(legend.position = "bottom") +
+  ggtitle(
+    label = "Integrated",
+    subtitle = paste0("N = ", ncol(Merged.SeuratObj))
+  ) +
+  guides(
+    color = guide_legend(
+      ncol = 3,
+      override.aes = list(
+        shape  = 21,
+        fill   = unname(cols),
+        colour = "black",
+        stroke = 0.8,
+        size   = 3
+      )
+    )
+  )
+
+# --------------------------------------------------
+# No-legend version
+# --------------------------------------------------
+
+plot_nolegend <- plot_base +
+  theme(legend.position = "none")
+
+# --------------------------------------------------
+# Save WITH legend
+# --------------------------------------------------
+
+png(
+  filename = paste0(results_folder,
+                    "/Phenotype/UMAP_ALL_coloured_by_donor_timepoint_WITH_legend.png"),
+  width = 9*0.75,
+  height = 11*0.75,
+  res = 300,
+  units = "in",
+  type = "cairo"
+)
+print(plot_base)
+dev.off()
+
+pdf(
+  file = paste0(results_folder,
+                "/Phenotype/UMAP_ALL_coloured_by_donor_timepoint_WITH_legend.pdf"),
+  width = 9*0.75,
+  height = 11*0.75
+)
+print(plot_base)
+dev.off()
+
+# --------------------------------------------------
+# Save WITHOUT legend
+# --------------------------------------------------
+
+png(
+  filename = paste0(results_folder,
+                    "/Phenotype/UMAP_ALL_coloured_by_donor_timepoint_NO_legend.png"),
+  width = 9*0.70,
+  height = 9*0.75,
+  res = 300,
+  units = "in",
+  type = "cairo"
+)
+print(plot_nolegend)
+dev.off()
+
+pdf(
+  file = paste0(results_folder,
+                "/Phenotype/UMAP_ALL_coloured_by_donor_timepoint_NO_legend.pdf"),
+  width = 9*0.70,
+  height = 9*0.75
+)
+print(plot_nolegend)
+dev.off()
+
+```
+
+## - UMAP ALL by donors individual
+
+```{r}
+cols <- c(
+  "VA013_T5"           = "skyblue",
+  "VA013_T8"           = "steelblue4",
+  "VA022_T5"           = "sandybrown",
+  "VA022_T8"           = "darkorange1",
+  "VA025_T5"           = "lightgreen",
+  "VA025_T8"           = "forestgreen",
+  "VA035_T5"           = "gold1",
+  "VA035_T8"           = "gold4",
+  "VA038_T5"           = "lightseagreen",
+  "VA038_T8"           = "turquoise4",
+  "VA059_T5"           = "indianred1",
+  "VA059_T8"           = "brown3"
+)
+
+library(ggplot2)
+library(grid)
+
+# Get UMAP embeddings
+umap_embeddings <- as.data.frame(
+  Merged.SeuratObj@reductions[["h_umap"]]@cell.embeddings
+)
+
+colnames(umap_embeddings)[1:2] <- c("humap_1", "humap_2")
+umap_embeddings$cell <- rownames(umap_embeddings)
+
+# Add Donor_timepoint
+md <- Merged.SeuratObj@meta.data
+umap_embeddings$Donor_timepoint <- md[umap_embeddings$cell, "Donor_timepoint"]
+
+# Output dir
+outdir <- file.path(results_folder, "Phenotype", "UMAP_by_Donor_timepoint")
+dir.create(outdir, recursive = TRUE, showWarnings = FALSE)
+
+# Levels to iterate
+donors <- sort(unique(na.omit(umap_embeddings$Donor_timepoint)))
+
+# Safety check
+missing_cols <- setdiff(donors, names(cols))
+if (length(missing_cols) > 0) {
+  warning(
+    "These Donor_timepoint levels are missing in cols:\n",
+    paste(missing_cols, collapse = ", ")
+  )
+}
+
+# Loop
+for (d in donors) {
+
+  message("Plotting: ", d)
+
+  selected_cells <- umap_embeddings[
+    umap_embeddings$Donor_timepoint == d,
+    ,
+    drop = FALSE
+  ]
+
+  n_sel <- nrow(selected_cells)
+  n_tot <- nrow(umap_embeddings)
+  pct   <- round((n_sel / n_tot) * 100, 2)
+
+  # Get colour (fallback to grey if missing)
+  col_use <- if (d %in% names(cols)) cols[d] else "#999999"
+
+  plot <- ggplot() +
+
+    # Background
+    geom_point(
+      data = umap_embeddings,
+      aes(humap_1, humap_2),
+      color = "#d6d6d6",
+      alpha = 0.3,
+      size = 1
+    ) +
+
+    # Highlight
+    geom_point(
+      data = selected_cells,
+      aes(humap_1, humap_2),
+      shape  = 21,
+      fill   = col_use,
+      colour = "black",
+      stroke = 0.4,
+      size   = 1.7,
+      alpha  = 0.95
+    ) +
+
+    theme_void() +
+
+    theme(
+      plot.title = element_text(hjust = 0.5, face = "bold"),
+      plot.subtitle = element_text(hjust = 0.5)
+    ) +
+
+    ggtitle(
+      d,
+      paste0(n_sel, " cells (", pct, "%)")
+    )
+
+  # Safe filename
+  fname <- gsub("[^A-Za-z0-9_\\-]", "_", d)
+
+  # PNG
+  png(
+    file.path(outdir, paste0("UMAP_Highlighted_", fname, ".png")),
+    width = 9*0.70,
+    height = 9*0.75,
+    res = 300,
+    units = "in",
+    type = "cairo"
+  )
+  print(plot)
+  dev.off()
+
+  # PDF
+  pdf(
+    file.path(outdir, paste0("UMAP_Highlighted_", fname, ".pdf")),
+    width = 9*0.70,
+    height = 9*0.75
+  )
+  print(plot)
+  dev.off()
+}
+```
+
+## - Donor_timepoints distribution across celltypes
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(scales)
+library(ggprism)
+library(grid)   # for unit()
+
+# Colours
+fillscols <- c(
+  "VA013_T5" = "skyblue",
+  "VA013_T8" = "steelblue4",
+  "VA022_T5" = "sandybrown",
+  "VA022_T8" = "darkorange1",
+  "VA025_T5" = "lightgreen",
+  "VA025_T8" = "forestgreen",
+  "VA035_T5" = "gold1",
+  "VA035_T8" = "gold4",
+  "VA038_T5" = "lightseagreen",
+  "VA038_T8" = "turquoise4",
+  "VA059_T5" = "indianred1",
+  "VA059_T8" = "brown3"
+)
+
+# Counts per Celltype × Donor_timepoint
+df <- Merged.SeuratObj@meta.data %>%
+  filter(!is.na(Celltype), !is.na(Donor_timepoint)) %>%
+  count(Celltype, Donor_timepoint, name = "n")
+
+# True totals per Celltype (from raw cells)
+totals <- Merged.SeuratObj@meta.data %>%
+  filter(!is.na(Celltype)) %>%
+  count(Celltype, name = "total")
+
+# Join totals + compute % within each Celltype
+df <- df %>%
+  left_join(totals, by = "Celltype") %>%
+  group_by(Celltype) %>%
+  mutate(pct = 100 * n / sum(n)) %>%
+  ungroup()
+
+# Keep legend/stack order consistent
+df$Donor_timepoint <- factor(df$Donor_timepoint, levels = rev(names(fillscols)))
+
+# One row per Celltype for labels
+df_labels <- df %>% distinct(Celltype, total)
+
+p <- ggplot(df, aes(x = Celltype, y = pct, fill = Donor_timepoint)) +
+  geom_col(
+    colour = "black",
+    linewidth = 0.6
+  ) +
+  # n labels (outside panel; keep axis 0–100)
+  geom_text(
+    data = df_labels,
+    aes(
+      x = Celltype,
+      y = 103,
+      label = paste0("n = ", total)
+    ),
+    inherit.aes = FALSE,
+    size = 3.8,
+    hjust = 0
+  ) +
+  scale_fill_manual(
+    values = fillscols,
+    breaks = names(fillscols),
+    drop = FALSE
+  ) +
+  scale_y_continuous(
+    labels = function(x) paste0(x, "%"),
+    limits = c(0, 100),
+    oob = scales::oob_keep,   # IMPORTANT: do not drop y > 100 labels
+    expand = c(0, 0)
+  ) +
+  labs(
+    x = "",
+    y = "Percentage",
+    fill = "Donor timepoint"
+  ) +
+  coord_flip(clip = "off") +
+  theme_prism(
+    palette = "muted_rainbow",
+    base_size = 14,
+    base_line_size = 1
+  ) +
+  theme(
+    legend.position = "bottom",
+    legend.direction = "horizontal",
+    # Increase right margin so "n =" labels fit; adjust 60->40/80 as needed
+    plot.margin = margin(10, 60, 10, 10),
+    # Tighten legend spacing a bit
+    legend.spacing.x = unit(0.2, "cm"),
+    legend.text = element_text(size = 11)
+  ) +
+  guides(
+    fill = guide_legend(
+      nrow = 3,               # more rows = less width
+      byrow = TRUE,
+      keywidth = unit(0.8, "cm"),
+      keyheight = unit(0.4, "cm"),
+      override.aes = list(
+        colour = "black",
+        linewidth = 0.6,
+        stroke = 1
+      )
+    )
+  )
+
+  # PNG
+  png(
+    file.path(results_folder,
+              paste0("/Phenotype/Donor_timepoint_distribution_over_celltypes.png")),
+    width = 2.73*3.25,
+    height = 1.65*3.4,
+    res = 300,
+    units = "in",
+    type = "cairo"
+  )
+  print(p)
+  dev.off()
+
+  # PDF
+  pdf(
+    file.path(results_folder,
+              paste0("/Phenotype/Donor_timepoint_distribution_over_celltypes.pdf")),
+    width = 2.73*3.25,
+    height = 1.65*3.4
+  )
+  print(p)
+  dev.off()
+
+```
+
+## - UMAP ALL colour by GEX and GEX+VDJ
+
+```{r}
+Merged.SeuratObj$Has_VDJ <- ifelse(
+  is.na(Merged.SeuratObj$clone_id),
+  "GEX",
+  "GEX+VDJ"
+)
+
+Merged.SeuratObj$Has_VDJ <- factor(Merged.SeuratObj$Has_VDJ, levels=c('GEX', 'GEX+VDJ'))
+```
+
+```{r}
+library(ggplot2)
+
+# UMAP embeddings
+umap_embeddings <- as.data.frame(
+  Merged.SeuratObj@reductions[["h_umap"]]@cell.embeddings
+)
+colnames(umap_embeddings)[1:2] <- c("humap_1", "humap_2")
+umap_embeddings$cell <- rownames(umap_embeddings)
+
+# Add Has_VDJ from metadata
+md <- Merged.SeuratObj@meta.data
+umap_embeddings$Has_VDJ <- md[umap_embeddings$cell, "Has_VDJ"]
+
+# Subsets
+bg_cells  <- umap_embeddings[umap_embeddings$Has_VDJ == "GEX", , drop = FALSE]
+top_cells <- umap_embeddings[umap_embeddings$Has_VDJ == "GEX+VDJ", , drop = FALSE]
+
+# Counts for subtitle
+n_top <- nrow(top_cells)
+n_bg  <- nrow(bg_cells)
+n_tot <- nrow(umap_embeddings)
+
+plot <- ggplot() +
+  # Background: GEX
+  geom_point(
+    data = bg_cells,
+    aes(humap_1, humap_2),
+    color = "#d6d6d6",
+    alpha = 0.5,
+    size = 1
+  ) +
+  # Top: GEX+VDJ
+  geom_point(
+    data = top_cells,
+    aes(humap_1, humap_2),
+    shape  = 21,
+    fill   = "steelblue4",
+    colour = "black",
+    stroke = 0.4,
+    size   = 1.7,
+    alpha  = 0.95
+  ) +
+  theme_void() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold"),
+    plot.subtitle = element_text(hjust = 0.5)
+  ) +
+  ggtitle(
+    "VDJ distribution",
+    paste0("GEX+VDJ: ", n_top, " | GEX: ", n_bg, " | Total: ", n_tot)
+  )
+
+print(plot)
+
+# Save
+png(
+  filename = file.path(results_folder, "Phenotype", "UMAP_ALL_Has_VDJ_GEX_vs_GEXplusVDJ.png"),
+  width = 9*0.70,
+  height = 9*0.75,
+  res = 300,
+  units = "in",
+  type = "cairo"
+)
+print(plot)
+dev.off()
+
+pdf(
+  file = file.path(results_folder, "Phenotype", "UMAP_ALL_Has_VDJ_GEX_vs_GEXplusVDJ.pdf"),
+  width = 9*0.70,
+  height = 9*0.75
+)
+print(plot)
+dev.off()
+
+```
+
+## - Markers expression dotplot
+
+```{r}
+# ---- packages ----
+suppressPackageStartupMessages({
+    library(Seurat)
+    library(ggplot2)
+    library(dplyr)
+    library(ggdendro)
+    library(scales)
+    library(grid)
+    library(gtable)
+    library(ggtext)
+})
+
+# ---- genes ----
+genes <- c(
+    'IL4R','ISG15','CD24','CR2','MME','CD1C','FCRL3','FCRL4','IL10RB',
+    'CXCR3','CXCR5','CD5','APOD','ABCA6','ABCA9','CTLA4','CD27','IGHG1',
+    'MKI67','BACH1','ZBTB16','MX1','FAS','SOX5','TBX21','STAT3','ZEB2',
+    'ZBTB32','JUN','FOSB','NR4A1','EGR1','LEF1','XBP1','PRDM1'
+)
+
+genes_use <- intersect(genes, rownames(Merged.SeuratObj))
+missing <- setdiff(genes, genes_use)
+if (length(missing) > 0) message("Missing genes (not in object): ", paste(missing, collapse = ", "))
+stopifnot(length(genes_use) > 1)
+
+pad <- 0.6
+
+# -------------------------------------------------
+# Build DotPlot ONCE
+# -------------------------------------------------
+dp_raw <- DotPlot(
+    Merged.SeuratObj,
+    group.by  = "Celltype",
+    assay     = "SCT",
+    scale.by  = "radius",
+    dot.scale = 5,
+    features  = genes_use
+)$data %>%
+    mutate(
+        features.plot = trimws(as.character(features.plot)),
+        id            = trimws(as.character(id))
+    )
+
+celltypes_dp <- sort(unique(dp_raw$id))
+celltypes_dp <- celltypes_dp[!is.na(celltypes_dp) & celltypes_dp != ""]
+stopifnot(length(celltypes_dp) > 1)
+
+genes_dp <- intersect(genes_use, sort(unique(dp_raw$features.plot)))
+stopifnot(length(genes_dp) > 1)
+
+# -------------------------------------------------
+# AverageExpression
+# -------------------------------------------------
+avg_mat <- AverageExpression(
+    Merged.SeuratObj,
+    features = genes_dp,
+    group.by = "Celltype",
+    assay    = "SCT"
+)$SCT
+
+colnames(avg_mat) <- trimws(colnames(avg_mat))
+rownames(avg_mat) <- trimws(rownames(avg_mat))
+
+missing_in_avg <- setdiff(celltypes_dp, colnames(avg_mat))
+extra_in_avg   <- setdiff(colnames(avg_mat), celltypes_dp)
+if (length(missing_in_avg) > 0 || length(extra_in_avg) > 0) {
+    stop("Mismatch between DotPlot celltypes and AverageExpression columns.")
+}
+
+avg_mat <- avg_mat[genes_dp, celltypes_dp, drop = FALSE]
+avg_scaled <- t(scale(t(avg_mat)))
+avg_scaled[is.na(avg_scaled)] <- 0
+
+# -------------------------------------------------
+# Cluster
+# -------------------------------------------------
+hc_genes <- hclust(dist(avg_scaled), method = "ward.D2")
+d_genes  <- as.dendrogram(hc_genes)
+
+hc_ct <- hclust(dist(t(avg_scaled)), method = "ward.D2")
+d_ct  <- as.dendrogram(hc_ct)
+
+# -------------------------------------------------
+# Leaf positions from dendro_data
+# -------------------------------------------------
+dd_g <- ggdendro::dendro_data(d_genes, type = "rectangle")
+dd_c <- ggdendro::dendro_data(d_ct,    type = "rectangle")
+
+gene_leaves <- dd_g$labels %>%
+    mutate(label = trimws(as.character(label))) %>%
+    arrange(x)
+gene_order <- gene_leaves$label
+gene_pos   <- setNames(gene_leaves$x, gene_leaves$label)
+n_genes    <- length(gene_order)
+
+ct_leaves <- dd_c$labels %>%
+    mutate(label = trimws(as.character(label))) %>%
+    arrange(x)
+celltype_order <- ct_leaves$label
+ct_pos         <- setNames(ct_leaves$x, ct_leaves$label)
+n_ct           <- length(celltype_order)
+
+# -------------------------------------------------
+# Dot plot data
+# -------------------------------------------------
+dp <- dp_raw %>%
+    filter(features.plot %in% gene_order, id %in% celltype_order) %>%
+    mutate(
+        x = gene_pos[features.plot],
+        y = ct_pos[id],
+        stroke_w = scales::rescale(pct.exp, to = c(0.16, 1.04), from = c(0, 100))
+    ) %>%
+    filter(!is.na(x), !is.na(y))
+
+vlines <- data.frame(xv = head(sort(gene_pos), -1) + diff(sort(gene_pos)) / 2)
+hlines <- data.frame(yv = head(sort(ct_pos), -1)   + diff(sort(ct_pos)) / 2)
+
+# -------------------------------------------------
+# Shared axis limits
+# -------------------------------------------------
+x_lim <- c(min(gene_pos) - pad, max(gene_pos) + pad)
+y_lim <- c(min(ct_pos)   - pad, max(ct_pos)   + pad)
+
+# -------------------------------------------------
+# Main dot plot
+# -------------------------------------------------
+DotP <- ggplot(dp, aes(x = x, y = y)) +
+    geom_vline(
+        data = vlines, aes(xintercept = xv),
+        inherit.aes = FALSE,
+        linetype = "dashed", colour = "grey70", linewidth = 0.3
+    ) +
+    geom_hline(
+        data = hlines, aes(yintercept = yv),
+        inherit.aes = FALSE,
+        linetype = "dashed", colour = "grey70", linewidth = 0.3
+    ) +
+    geom_point(
+        aes(size = pct.exp, fill = avg.exp.scaled, stroke = stroke_w),
+        shape = 21, colour = "black", alpha = 1
+    ) +
+    scale_fill_gradientn(colours = gradient_exp) +
+    scale_size(
+        limits = c(0, 100),
+        breaks = c(0, 25, 50, 75, 100),
+        labels = function(z) paste0(z, "%")
+    ) +
+    scale_x_continuous(
+        breaks = gene_pos,
+        labels = paste0("*", names(gene_pos), "*"),
+        limits = x_lim,
+        expand = c(0, 0)
+    ) +
+    scale_y_continuous(
+        breaks = ct_pos,
+        labels = names(ct_pos),
+        limits = y_lim,
+        expand = c(0, 0)
+    ) +
+    coord_cartesian(clip = "off") +
+    theme_bw(base_size = 12, base_line_size = 0.2) +
+    theme(
+        text         = element_text(family = "sans"),
+        plot.margin  = margin(2, 2, 2, 2),
+        axis.title   = element_blank(),
+        axis.text.x  = ggtext::element_markdown(
+            angle = 45, hjust = 1, vjust = 1, size = 10,
+            family = "sans"
+        ),
+        axis.text.y  = element_text(size = 10, family = "sans"),
+        axis.line    = element_blank(),
+        axis.ticks   = element_blank(),
+        legend.position      = "bottom",
+        legend.justification = "center",
+        legend.direction     = "horizontal",
+        legend.box           = "horizontal",
+        legend.box.just      = "top",
+        legend.spacing.x     = unit(1.5, "cm"),
+        legend.box.spacing   = unit(0.2, "cm"),
+        legend.margin        = margin(t = 5, b = 5, l = 0, r = 0),
+        legend.text          = element_text(size = 9, family = "sans"),
+        legend.title         = element_text(size = 10, family = "sans"),
+        legend.key.size      = unit(0.4, "cm"),
+        legend.key.spacing.x = unit(0.1, "cm")
+    ) +
+    guides(
+        fill = guide_colorbar(
+            title = "Scaled Expression",
+            title.position = "top",
+            title.hjust = 0.5,
+            barwidth  = unit(4, "cm"),
+            barheight = unit(0.35, "cm"),
+            ticks.linewidth = 0.3,
+            frame.colour = "black",
+            frame.linewidth = 0.3,
+            order = 2
+        ),
+        size = guide_legend(
+            title = "Percent Expressing",
+            title.position = "top",
+            title.hjust = 0.5,
+            nrow = 1,
+            byrow = TRUE,
+            override.aes = list(stroke = 0.5, fill = "grey70"),
+            order = 1
+        )
+    )
+
+# -------------------------------------------------
+# Convert to gtable
+# -------------------------------------------------
+g_dot <- ggplotGrob(DotP)
+
+panel_idx <- which(g_dot$layout$name == "panel")
+panel_t   <- g_dot$layout$t[panel_idx]
+panel_b   <- g_dot$layout$b[panel_idx]
+panel_l   <- g_dot$layout$l[panel_idx]
+panel_r   <- g_dot$layout$r[panel_idx]
+
+# -------------------------------------------------
+# Top dendrogram as raw grid grob
+# -------------------------------------------------
+dend_top_grob <- gTree(
+    children = gList(
+        segmentsGrob(
+            x0 = unit(rescale(dd_g$segments$x,    from = x_lim), "npc"),
+            y0 = unit(rescale(dd_g$segments$y,    from = c(0, max(dd_g$segments$y))), "npc"),
+            x1 = unit(rescale(dd_g$segments$xend, from = x_lim), "npc"),
+            y1 = unit(rescale(dd_g$segments$yend, from = c(0, max(dd_g$segments$y))), "npc"),
+            gp = gpar(lwd = 0.8)
+        )
+    )
+)
+
+# -------------------------------------------------
+# Right dendrogram as raw grid grob
+# -------------------------------------------------
+dend_right_grob <- gTree(
+    children = gList(
+        segmentsGrob(
+            x0 = unit(rescale(dd_c$segments$y,    from = c(0, max(dd_c$segments$y))), "npc"),
+            y0 = unit(rescale(dd_c$segments$x,    from = y_lim), "npc"),
+            x1 = unit(rescale(dd_c$segments$yend, from = c(0, max(dd_c$segments$y))), "npc"),
+            y1 = unit(rescale(dd_c$segments$xend, from = y_lim), "npc"),
+            gp = gpar(lwd = 0.8)
+        )
+    )
+)
+
+# -------------------------------------------------
+# Add dendrograms to the dot plot gtable
+# -------------------------------------------------
+
+# Add padding column on the left
+g_combined <- gtable_add_cols(g_dot, widths = unit(0.1, "in"), pos = 0)
+
+# Add spacer row, dendrogram row, and padding row on top
+g_combined <- gtable_add_rows(g_combined, heights = unit(0.1, "in"), pos = 0)
+g_combined <- gtable_add_rows(g_combined, heights = unit(1.8, "in"), pos = 0)
+g_combined <- gtable_add_rows(g_combined, heights = unit(0.1, "in"), pos = 0)
+
+# panel_l shifted by +1 due to left padding column
+g_combined <- gtable_add_grob(
+    g_combined,
+    dend_top_grob,
+    t = 2, b = 2,
+    l = panel_l + 1, r = panel_r + 1,
+    name = "dend_top"
+)
+
+# Add spacer column, dendrogram column, and padding column on right
+g_combined <- gtable_add_cols(g_combined, widths = unit(0.1, "in"), pos = -1)
+g_combined <- gtable_add_cols(g_combined, widths = unit(0.8, "in"), pos = -1)
+g_combined <- gtable_add_cols(g_combined, widths = unit(0.1, "in"), pos = -1)
+
+# panel rows shifted by +3, panel cols shifted by +1
+g_combined <- gtable_add_grob(
+    g_combined,
+    dend_right_grob,
+    t = panel_t + 3, b = panel_b + 3,
+    l = ncol(g_combined) - 1, r = ncol(g_combined) - 1,
+    name = "dend_right"
+)
+
+# -------------------------------------------------
+# Save
+# -------------------------------------------------
+dir.create(file.path(results_folder, "Phenotype"), recursive = TRUE, showWarnings = FALSE)
+
+png(
+    file.path(results_folder, "Phenotype", "DotPlot_topDendro_rightDendro_yAxisMatchesDendrogram.png"),
+    width = 12, height = 6, units = "in", res = 300, type = "cairo"
+)
+grid.newpage()
+grid.draw(g_combined)
+dev.off()
+
+pdf(
+    file.path(results_folder, "Phenotype", "DotPlot_topDendro_rightDendro_yAxisMatchesDendrogram.pdf"),
+    width = 12, height = 6
+)
+grid.newpage()
+grid.draw(g_combined)
+dev.off()
+
+message("Celltype order used on Y:\n", paste(celltype_order, collapse = ", "))
+message("Gene order used on X:\n", paste(gene_order, collapse = ", "))
+```
+
+# - Session Info
+
+```{r}
+library(tools)
+
+script_path <- rstudioapi::getSourceEditorContext()$path
+script_path_no_ext <- file_path_sans_ext(script_path)
+
+writeLines(capture.output(sessionInfo()), paste0(script_path_no_ext, '__Session_Info.txt'))
+```

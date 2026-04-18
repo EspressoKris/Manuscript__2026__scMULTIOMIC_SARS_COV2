@@ -1,0 +1,186 @@
+---
+title: "Figures"
+output: html_document
+date: '2023-04-05'
+---
+
+# 1. Setup
+
+## - Setting work directories
+
+Defining work directory within rmarkdown chunk
+
+```{r setup, include=TRUE}
+local_wd_folder = dirname(dirname(dirname(rstudioapi::getSourceEditorContext()$path)))
+knitr::opts_knit$set(root.dir = local_wd_folder)
+```
+
+```{r}
+setwd(local_wd_folder)
+```
+
+## - Setting seed
+
+This step ensures reproducibility in randomized processes
+
+```{r}
+set.seed(seed = 123, kind = "Mersenne-Twister", normal.kind = "Inversion")
+```
+
+## - Options
+
+```{r}
+options(Seurat.object.assay.version = 'v3')
+```
+
+## - Loading libraries
+
+```{r}
+library(SingleCellExperiment)
+library(Seurat)
+library(scuttle)
+library(scater)
+library(dplyr)
+library(stringr)
+library(R.utils)
+library(gridExtra)
+library(scDblFinder)
+library(Biostrings)
+library(Rsamtools)
+```
+
+## - Defining input data and output directories
+
+```{r}
+data_folder = paste0(local_wd_folder, '/Data/10x')
+results_folder = paste0(local_wd_folder, '/Results/10x')
+Input_data = paste(data_folder, '/Per_Sample_Demultiplexed_Mapped_Data', sep = '')
+
+dir.create(path = paste(results_folder, '/VDJ', sep = ''), showWarnings = F)
+```
+
+## - Loading palettes
+
+```{r}
+# Load additional colour palette packages
+library(unikn, quietly = TRUE)
+library(RColorBrewer, quietly = TRUE)
+library(yarrr, quietly = TRUE)
+library(scales, quietly = TRUE)
+library(ggsci, quietly = TRUE)
+
+# Define a set of custom color palettes from the unikn package
+mix_1 <- usecol(pal = c(Karpfenblau, "white", Peach), n = 15)
+mix_2 <- usecol(pal = c(rev(pal_seeblau), "white", pal_pinky))
+mix_3 <- usecol(pal = c(rev(pal_bordeaux), "white", pal_petrol), n = 15)
+
+# Display the custom palettes
+seecol(list(mix_1, mix_2, mix_3), col_brd = "white", lwd_brd = 4, title = "Comparing palettes mixed from unikn colors", pal_names = c("mix_1", "mix_2", "mix_3"))
+
+# Define a second set of custom palettes from the RColorBrewer and yarrr packages
+brew_mix <- usecol(c(rev(brewer.pal(n = 4, name = "Reds")), "white", brewer.pal(n = 4, name = "Blues")), n = 13)
+brew_ext <- usecol(brewer.pal(n = 11, name = "Spectral"), n = 12)
+yarrr_mix <- usecol(c(piratepal("nemo"), piratepal("bugs")))
+yarrr_mod <- usecol(c(piratepal("ipod")), n = 9)
+
+gradient_exp <- rev(c('#FFAB01', '#FC8805', '#FC5D05', '#D92211', "#D9043D", "#A6036D", "#7C038C", "#5503A6", "#A69AEE", '#D9D4F7', "#FFFFFF", "#F4F7FF", '#E9EBEF'))
+
+# Display the second set of custom palettes
+seecol(pal = list(brew_mix, brew_ext, yarrr_mix, yarrr_mod), col_brd = "white", lwd_brd = 2, title = "Using usecol() and seecol() to mix and modify palettes", pal_names = c("brew_mix", "brew_ext", "yarrr_mix", "yarrr_mod"))
+
+# Define additional custom palettes from the scales package
+natjournals_palette <- pal_npg("nrc")(10)
+```
+
+# 2. INPUT: Importing pre-filtered samples
+
+```{r}
+Merged.SeuratObj <- readRDS(paste(data_folder, 'SC_Objects', 'Added_ADT.rds', sep = '/'))
+```
+
+# 3. Loading VDJ data
+
+```{r}
+VDJ_data <- read.table(paste(results_folder, 'VDJ', 'BCR_with_clonotypes.csv', sep = '/'), sep = ',', row.names = 'X',
+                       header = T)
+
+for (s in colnames(VDJ_data)[str_detect(colnames(VDJ_data), 'sequence')]) {
+
+  VDJ_data[[s]] <- gsub("\\.", "", VDJ_data[[s]])
+
+}
+
+rownames(VDJ_data) <- VDJ_data$cell_id
+```
+
+```{r}
+Merged.SeuratObj@meta.data$cell_id <- rownames(Merged.SeuratObj@meta.data)
+
+merged_data <- Merged.SeuratObj@meta.data %>%
+  left_join(VDJ_data, by = "cell_id")
+
+rownames(merged_data) <- merged_data$cell_id
+```
+
+```{r}
+n_cells_without_vdj <- sum(is.na(merged_data$clone_id))
+n_cells_with_vdj <- ncol(Merged.SeuratObj) - n_cells_without_vdj
+
+percentage_cells_without_vdj <- round((n_cells_without_vdj/ncol(Merged.SeuratObj))*100,1)
+percentage_cells_with_vdj <- round((n_cells_with_vdj/ncol(Merged.SeuratObj))*100,1)
+
+###
+
+n_cells_without_vdj_per_sample <- list()
+n_cells_with_vdj_per_sample <- list()
+
+percentage_cells_without_vdj_per_sample <- list()
+percentage_cells_with_vdj_per_sample <- list()
+
+for (s in unique(merged_data$Identity)) {
+  
+  n_cells_without_vdj_per_sample[[s]] <- sum(is.na(merged_data %>% filter(Identity == s) %>% pull(clone_id)))
+  n_cells_with_vdj_per_sample[[s]] <- nrow(Merged.SeuratObj@meta.data %>% filter(Identity == s)) - n_cells_without_vdj_per_sample[[s]]
+
+  percentage_cells_without_vdj_per_sample[[s]] <- round((n_cells_without_vdj_per_sample[[s]]/nrow(Merged.SeuratObj@meta.data %>% filter(Identity == s)))*100,1)
+  percentage_cells_with_vdj_per_sample[[s]] <- round((n_cells_with_vdj_per_sample[[s]]/nrow(Merged.SeuratObj@meta.data %>% filter(Identity == s)))*100,1)
+  
+}
+
+
+```
+
+```{r}
+Merged.SeuratObj@meta.data <- merged_data
+
+merged_data_to_export <- cbind(
+    Merged.SeuratObj@meta.data, 
+    as.data.frame(as.matrix(t(Merged.SeuratObj@assays$ADT@data[, rownames(Merged.SeuratObj@meta.data)])))
+  )
+
+# Replace <NA> with NA (without angle brackets)
+merged_data_to_export[is.na(merged_data_to_export)] <- ""
+
+write.table(
+  merged_data_to_export, 
+  file = paste(results_folder, 'VDJ', 'Comprehensive_sc_metadata_with_BCR.tsv', sep = '/'), 
+  sep = "\t",  # Use tab as the delimiter
+  row.names = FALSE, 
+  quote = FALSE
+)
+```
+
+```{r}
+saveRDS(Merged.SeuratObj, paste(data_folder, 'SC_Objects', 'Added_VDJ.rds', sep = '/'))
+```
+
+## - Session Info
+
+```{r}
+library(tools)
+
+script_path <- rstudioapi::getSourceEditorContext()$path
+script_path_no_ext <- file_path_sans_ext(script_path)
+
+writeLines(capture.output(sessionInfo()), paste0(script_path_no_ext, '__Session_Info.txt'))
+```

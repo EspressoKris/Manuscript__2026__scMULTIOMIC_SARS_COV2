@@ -279,7 +279,6 @@ elbow_plot <- ElbowPlot(object = Merged.SeuratObj, ndims = 40)
 print(elbow_plot)
 ```
 
-
 ```{r}
 seed.use = 123
 
