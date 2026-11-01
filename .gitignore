@@ -11,6 +11,7 @@
 !/Data/10x/Demultiplexing/.gitkeep
 
 /Data/10x/Resources/*
+!/Data/10x/Resources/README.md
 !/Data/10x/Resources/.gitkeep
 
 /Data/10x/SC_Objects/*
