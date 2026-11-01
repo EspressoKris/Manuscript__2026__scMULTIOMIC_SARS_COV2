@@ -20,3 +20,11 @@
 
 /Results/*
 !/Results/.gitkeep
+# GEO submission and checksum checks
+geo_submit.sh
+geo_raw_manifest.csv
+geo_processed_manifest.csv
+md5_manifest.tsv
+MD5sumchecks.sh
+flatten.lftp
+Data/10x/GEO_Submission/

@@ -1,86 +1,71 @@
-# Project information:
+# Beyond polyclonal antibody responses: dissecting susceptibility to newly emerging SARS-CoV-2 variants
 
-**Coded in/requires**:
+![R](https://img.shields.io/badge/R-4.4.1-blue?style=flat&logo=R)
+![Seurat](https://img.shields.io/badge/Seurat-5.2.1-blue?style=flat)
+![Cell Ranger](https://img.shields.io/badge/Cell%20Ranger-9.0.0-blue?style=flat)
+![souporcell](https://img.shields.io/badge/souporcell-2.0-blue?style=flat)
+![Immcantation](https://img.shields.io/badge/Immcantation-4.7.0-blue?style=flat)
+![GEO](https://img.shields.io/badge/GEO-GSExxxxxx-lightgrey?style=flat)
 
-![Static Badge](https://img.shields.io/badge/v4.3.3-blue?style=flat&logo=R)
+Analysis code for the single-cell multi-omic profiling of memory B-cell responses to SARS-CoV-2 vaccination and omicron breakthrough infection.
 
-## Overview
-This repository contains the analysis code and relevant documentation for the single-cell multi-omics profiling of SARS-CoV-2 infection using scBEAM-BCR technology.
+## Summary
 
-## Contact
-**First Author:** Carl Graham (carl.1.graham@kcl.ac.uk)   
-**Senior Author:** Katie J Doores (katie.doores@kcl.ac.uk) 
+This study investigated six donors sampled after three doses of the BNT162b2 mRNA vaccine and again following an omicron lineage breakthrough infection (BTI). Droplet-based scRNA-seq, BCR-seq and CITE-seq were combined to resolve the gene expression, variable region sequence and antigen binding of individual B-cells. Molecular barcoded antigen probes identified Spike specific B-cells, the sub-domain they targeted and their specificity for the ancestral or BTI strains. Gene expression classified the B-cells into naive (transitional and naive) and memory (activated, resting, IgM and atypical) subsets. Variable region sequence analysis yielded complementarity-determining region lengths and isotype, and inferred germline gene usage, somatic hypermutation and clonal relationships. Monoclonal antibodies representing the MBC compartment were expressed recombinantly and characterised in binding, neutralisation and effector function assays. Together, this work showed how repeated single-strain vaccination can shape MBC responses before and after infection with an antigenically drifted variant.
 
-## General Description
-Single-cell characterization of immune responses to SARS-CoV-2 infection with synchroneous profiling of:
-- Gene expression (scRNA-seq)
-- Target surface protein capture (CITE-seq)
-- Target antigen capture (BEAM-seq)
-- B-cell receptor repertoires (BCR-seq)
+## Contributors
 
-## Graphical Abstract 
+- **Carl Graham** (first author) · carl.1.graham@kcl.ac.uk
+- **Kristian Gurashi** (computational analysis) · kristian.gurashi@ndcls.ox.ac.uk
+- **Katie J. Doores** (senior author) · katie.doores@kcl.ac.uk
 
+## Citation
 
-## Citation 
+> Graham, C., ... Doores, K. J. *Beyond polyclonal antibody responses: dissecting susceptibility to newly emerging SARS-CoV-2 variants.* (in preparation)
 
-> Graham, C.
+## Graphical Abstract
 
---- 
+<!-- add figure -->
 
-## Data Availability
+---
 
-### Raw Data
-- **GEO Accession**: [GSExxxxxx](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSExxxxxx)
-- **SRA**: [SRPxxxxxx](https://www.ncbi.nlm.nih.gov/sra?term=SRPxxxxxx)
+## Study design
 
-### Processed Data
-- **Zenodo**: [DOI:10.5281/zenodo.xxxxxxx](https://doi.org/10.5281/zenodo.xxxxxxx)
-- Seurat objects
-- Count matrices
-- Metadata files
+Six donors were sampled twice: after three vaccine doses (**T5**) and after omicron breakthrough infection (**T8**). From each sample, general B cells (**GB**) and antigen-specific B cells (**ASB**) were sorted, labelled with hashtags, and pooled three donors per 10x Genomics run. For each cell we measured gene expression, surface proteins, antigen binding and the antibody (BCR) sequence.
 
-## Directory Structure
+| Run | Time point | Donors |
+|---|---|---|
+| L364A | T5 | VA013, VA022, VA035 |
+| L364B | T8 | VA013, VA022, VA035 |
+| L364C | T8 | VA025, VA038, VA059 |
+| L364D | T5 | VA025, VA038, VA059 |
+
+## Analyses
+
+1. **Read the sequencing data** — counts per cell and antibody sequences (Cell Ranger).
+2. **Assign each cell to its donor** — using hashtags and genetic differences (souporcell).
+3. **Identify cell types** — quality control, integration and annotation (Seurat).
+4. **Analyse antibody sequences** — genes, clones and mutations (Immcantation).
+5. **Link antibodies to the virus** — which Spike region and which strain each B cell binds, plus figures.
+
+## Repository
 
 ```
-.
-├── README.md
-├── data/
-│   ├── raw/                    # Raw sequencing data (not tracked)
-│   ├── processed/              # Processed count matrices
-│   └── metadata/               # Sample and clinical metadata
-├── scripts/
-│   ├── 01_preprocessing/       # Quality control and filtering
-│   ├── 02_integration/         # Data integration and batch correction
-│   ├── 03_clustering/          # Cell type identification
-│   ├── 04_differential/        # Differential expression analysis
-│   ├── 05_bcr_analysis/        # BCR repertoire analysis
-│   └── 06_visualization/       # Figure generation
-├── results/
-│   ├── figures/                # Publication-ready figures
-│   ├── tables/                 # Supplementary tables
-│   └── reports/                # Analysis reports
-├── notebooks/                  # R Markdown/Jupyter notebooks
-└── environment/                # Conda/Docker specifications
+01_CellRanger/      # 1. sequencing data
+02_Demultiplexing/  # 2. donor assignment
+03_Downstream/      # 3–5. cell types, antibodies, figures (scripts numbered in run order)
 ```
 
---- 
+## Data
 
-## Dependencies
+- **GEO:** [GSExxxxxx](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSExxxxxx) *(pending)*
+  - Raw: one set of FASTQs per sequencing library (each library mixes three donors).
+  - Processed: one HDF5 file per donor, time point and cell population, plus antibody sequences per run.
 
-### R Packages
-- Seurat (v5.0+)
+## Requirements
 
-## Key Analyses
-
-1. **Quality Control**: `scripts/01_preprocessing/`
-2. **Data Integration**: `scripts/02_integration/`
-3. **Cell Type Annotation**: `scripts/03_clustering/`
-4. **Differential Expression**: `scripts/04_differential/`
-5. **BCR Repertoire Analysis**: `scripts/05_bcr_analysis/`
-6. **Figure Generation**: `scripts/06_visualization/`
-
---- 
+Cell Ranger 9.0.0 · souporcell 2.0 · Immcantation 4.7.0 · R 4.4.1 with Seurat 5.2.1. Exact package versions are saved next to each script (`__Session_Info.txt`).
 
 ## License
-This project is licensed under the CC4BY License - see LICENSE file for details.
-```
+
+CC BY 4.0 — see `LICENSE`.
