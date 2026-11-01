@@ -1,10 +1,6 @@
 # Beyond polyclonal antibody responses: dissecting susceptibility to newly emerging SARS-CoV-2 variants
 
 ![R](https://img.shields.io/badge/R-4.4.1-blue?style=flat&logo=R)
-![Seurat](https://img.shields.io/badge/Seurat-5.2.1-blue?style=flat)
-![Cell Ranger](https://img.shields.io/badge/Cell%20Ranger-9.0.0-blue?style=flat)
-![souporcell](https://img.shields.io/badge/souporcell-2.0-blue?style=flat)
-![Immcantation](https://img.shields.io/badge/Immcantation-4.7.0-blue?style=flat)
 ![GEO](https://img.shields.io/badge/GEO-GSExxxxxx-lightgrey?style=flat)
 
 Analysis code for the single-cell multi-omic profiling of memory B-cell responses to SARS-CoV-2 vaccination and omicron breakthrough infection.
@@ -64,7 +60,9 @@ Six donors were sampled twice: after three vaccine doses (**T5**) and after omic
 
 ## Requirements
 
-Cell Ranger 9.0.0 · souporcell 2.0 · Immcantation 4.7.0 · R 4.4.1 with Seurat 5.2.1. Exact package versions are saved next to each script (`__Session_Info.txt`).
+R 4.4.1. Exact package versions are saved next to each script (`__Session_Info.txt`).
+
+Running the pipeline also requires external resources (reference genomes, containers, annotation datasets and germline references). See [`Data/10x/Resources/README.md`](Data/10x/Resources/README.md) for what is needed and where to download it.
 
 ## License
 
