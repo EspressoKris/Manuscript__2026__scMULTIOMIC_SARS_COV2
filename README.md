@@ -1,7 +1,6 @@
 # Beyond polyclonal antibody responses: dissecting susceptibility to newly emerging SARS-CoV-2 variants
 
 ![R](https://img.shields.io/badge/R-4.4.1-blue?style=flat&logo=R)
-![GEO](https://img.shields.io/badge/GEO-GSExxxxxx-lightgrey?style=flat)
 
 Analysis code for the single-cell multi-omic profiling of memory B-cell responses to SARS-CoV-2 vaccination and omicron breakthrough infection.
 
@@ -54,9 +53,10 @@ Six donors were sampled twice: after three vaccine doses (**T5**) and after omic
 
 ## Data
 
-- **GEO:** [GSExxxxxx](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSExxxxxx) *(pending)*
-  - Raw: one set of FASTQs per sequencing library (each library mixes three donors).
+- **GEO:** [GSE352908](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE352908)
+  - Raw: one set of FASTQs per 10x lane and sequencing library (libraries are patient multiplexed).
   - Processed: one HDF5 file per donor, time point and cell population, plus antibody sequences per run.
+  - Resources: resources used for data analysis are downloadable at [Zenodo](https://zenodo.org/records/23914018/files/Resources.tar.gz?download=1&preview=1)
 
 ## Requirements
 
