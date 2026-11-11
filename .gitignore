@@ -4,8 +4,14 @@
 /Data/10x/Per_Sample_Demultiplexed_Mapped_Data/*
 !/Data/10x/Per_Sample_Demultiplexed_Mapped_Data/.gitkeep
 
-/Data/10x/Raw_Data/*
-!/Data/10x/Raw_Data/.gitkeep
+# Raw_Data: keep folder structure + docs, never FASTQs
+/Data/10x/Raw_Data/**
+!/Data/10x/Raw_Data/**/
+!/Data/10x/Raw_Data/**/.gitkeep
+!/Data/10x/Raw_Data/README.md
+!/Data/10x/Raw_Data/MANIFEST.tsv
+!/Data/10x/Raw_Data/STRUCTURE.txt
+!/Data/10x/Raw_Data/make_placeholders.sh
 
 /Data/10x/Demultiplexing/*
 !/Data/10x/Demultiplexing/.gitkeep
@@ -21,6 +27,14 @@
 
 /Results/*
 !/Results/.gitkeep
+
+# Safety net: raw sequencing data anywhere
+*.fastq.gz
+*.fastq
+*.fq.gz
+*.bcl
+*.cbcl
+
 # GEO submission and checksum checks
 geo_submit.sh
 geo_raw_manifest.csv
