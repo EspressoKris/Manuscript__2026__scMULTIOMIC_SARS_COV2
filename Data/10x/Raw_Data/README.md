@@ -1,4 +1,4 @@
-# CG__250425_10x — Raw Data
+# Raw Data
 
 Raw 10x Genomics FASTQs for the **L364** experiment (4 captures, A–D) plus two top-up runs for L364C.
 Each capture has three library types: gene expression (GEX), BCR V(D)J, and cell surface protein (CSP: ADT/HTO).
