@@ -1,6 +1,6 @@
 # CG__250425_10x — Raw Data
 
-Raw 10x Genomics FASTQs for the **L364** experimens (4 captures, A–D) plus two top-up runs for L364C.
+Raw 10x Genomics FASTQs for the **L364** experiment (4 captures, A–D) plus two top-up runs for L364C.
 Each capture has three library types: gene expression (GEX), BCR V(D)J, and cell surface protein (CSP: ADT/HTO).
 
 ---
@@ -13,6 +13,128 @@ Raw_Data/
 │   ├── GEX/        # Gene expression          (*_GEX_*)
 │   ├── BCR/        # BCR V(D)J                (*_VDJ_*)
 │   └── ADT_HTO/    # Antibody / hashtag CSP   (*_CSP_*)
+```
+
+## Structure
+
+```
+Raw_Data/
+├── Run_S1081_L364A
+│   ├── ADT_HTO
+│   │   ├── L364A_21022025_CSP_S2_L001_I1_001.fastq.gz
+│   │   ├── L364A_21022025_CSP_S2_L001_I2_001.fastq.gz
+│   │   ├── L364A_21022025_CSP_S2_L001_R1_001.fastq.gz
+│   │   └── L364A_21022025_CSP_S2_L001_R2_001.fastq.gz
+│   ├── BCR
+│   │   ├── L364A_21022025_VDJ_S3_L001_I1_001.fastq.gz
+│   │   ├── L364A_21022025_VDJ_S3_L001_I2_001.fastq.gz
+│   │   ├── L364A_21022025_VDJ_S3_L001_R1_001.fastq.gz
+│   │   └── L364A_21022025_VDJ_S3_L001_R2_001.fastq.gz
+│   └── GEX
+│       ├── L364A_21022025_GEX_S1_L001_I1_001.fastq.gz
+│       ├── L364A_21022025_GEX_S1_L001_I2_001.fastq.gz
+│       ├── L364A_21022025_GEX_S1_L001_R1_001.fastq.gz
+│       └── L364A_21022025_GEX_S1_L001_R2_001.fastq.gz
+├── Run_S1146_L364B
+│   ├── ADT_HTO
+│   │   ├── L364B_08072025_CSP_S3_L001_I1_001.fastq.gz
+│   │   ├── L364B_08072025_CSP_S3_L001_I2_001.fastq.gz
+│   │   ├── L364B_08072025_CSP_S3_L001_R1_001.fastq.gz
+│   │   ├── L364B_08072025_CSP_S3_L001_R2_001.fastq.gz
+│   │   ├── L364B_08072025_CSP_S3_L002_I1_001.fastq.gz
+│   │   ├── L364B_08072025_CSP_S3_L002_I2_001.fastq.gz
+│   │   ├── L364B_08072025_CSP_S3_L002_R1_001.fastq.gz
+│   │   └── L364B_08072025_CSP_S3_L002_R2_001.fastq.gz
+│   ├── BCR
+│   │   ├── L364B_08072025_VDJ_S2_L001_I1_001.fastq.gz
+│   │   ├── L364B_08072025_VDJ_S2_L001_I2_001.fastq.gz
+│   │   ├── L364B_08072025_VDJ_S2_L001_R1_001.fastq.gz
+│   │   ├── L364B_08072025_VDJ_S2_L001_R2_001.fastq.gz
+│   │   ├── L364B_08072025_VDJ_S2_L002_I1_001.fastq.gz
+│   │   ├── L364B_08072025_VDJ_S2_L002_I2_001.fastq.gz
+│   │   ├── L364B_08072025_VDJ_S2_L002_R1_001.fastq.gz
+│   │   └── L364B_08072025_VDJ_S2_L002_R2_001.fastq.gz
+│   └── GEX
+│       ├── L364B_08072025_GEX_S1_L001_I1_001.fastq.gz
+│       ├── L364B_08072025_GEX_S1_L001_I2_001.fastq.gz
+│       ├── L364B_08072025_GEX_S1_L001_R1_001.fastq.gz
+│       ├── L364B_08072025_GEX_S1_L001_R2_001.fastq.gz
+│       ├── L364B_08072025_GEX_S1_L002_I1_001.fastq.gz
+│       ├── L364B_08072025_GEX_S1_L002_I2_001.fastq.gz
+│       ├── L364B_08072025_GEX_S1_L002_R1_001.fastq.gz
+│       └── L364B_08072025_GEX_S1_L002_R2_001.fastq.gz
+├── Run_S1146_L364C
+│   ├── ADT_HTO
+│   │   ├── L364C_15072025_CSP_S6_L001_I1_001.fastq.gz
+│   │   ├── L364C_15072025_CSP_S6_L001_I2_001.fastq.gz
+│   │   ├── L364C_15072025_CSP_S6_L001_R1_001.fastq.gz
+│   │   ├── L364C_15072025_CSP_S6_L001_R2_001.fastq.gz
+│   │   ├── L364C_15072025_CSP_S6_L002_I1_001.fastq.gz
+│   │   ├── L364C_15072025_CSP_S6_L002_I2_001.fastq.gz
+│   │   ├── L364C_15072025_CSP_S6_L002_R1_001.fastq.gz
+│   │   └── L364C_15072025_CSP_S6_L002_R2_001.fastq.gz
+│   ├── BCR
+│   │   ├── L364C_15072025_VDJ_S5_L001_I1_001.fastq.gz
+│   │   ├── L364C_15072025_VDJ_S5_L001_I2_001.fastq.gz
+│   │   ├── L364C_15072025_VDJ_S5_L001_R1_001.fastq.gz
+│   │   ├── L364C_15072025_VDJ_S5_L001_R2_001.fastq.gz
+│   │   ├── L364C_15072025_VDJ_S5_L002_I1_001.fastq.gz
+│   │   ├── L364C_15072025_VDJ_S5_L002_I2_001.fastq.gz
+│   │   ├── L364C_15072025_VDJ_S5_L002_R1_001.fastq.gz
+│   │   └── L364C_15072025_VDJ_S5_L002_R2_001.fastq.gz
+│   └── GEX
+│       ├── L364C_15072025_GEX_S4_L001_I1_001.fastq.gz
+│       ├── L364C_15072025_GEX_S4_L001_I2_001.fastq.gz
+│       ├── L364C_15072025_GEX_S4_L001_R1_001.fastq.gz
+│       ├── L364C_15072025_GEX_S4_L001_R2_001.fastq.gz
+│       ├── L364C_15072025_GEX_S4_L002_I1_001.fastq.gz
+│       ├── L364C_15072025_GEX_S4_L002_I2_001.fastq.gz
+│       ├── L364C_15072025_GEX_S4_L002_R1_001.fastq.gz
+│       └── L364C_15072025_GEX_S4_L002_R2_001.fastq.gz
+├── Run_S1146_L364D
+│   ├── ADT_HTO
+│   │   ├── L364D_25072025_CSP_S9_L001_I1_001.fastq.gz
+│   │   ├── L364D_25072025_CSP_S9_L001_I2_001.fastq.gz
+│   │   ├── L364D_25072025_CSP_S9_L001_R1_001.fastq.gz
+│   │   ├── L364D_25072025_CSP_S9_L001_R2_001.fastq.gz
+│   │   ├── L364D_25072025_CSP_S9_L002_I1_001.fastq.gz
+│   │   ├── L364D_25072025_CSP_S9_L002_I2_001.fastq.gz
+│   │   ├── L364D_25072025_CSP_S9_L002_R1_001.fastq.gz
+│   │   └── L364D_25072025_CSP_S9_L002_R2_001.fastq.gz
+│   ├── BCR
+│   │   ├── L364D_25072025_VDJ_S8_L001_I1_001.fastq.gz
+│   │   ├── L364D_25072025_VDJ_S8_L001_I2_001.fastq.gz
+│   │   ├── L364D_25072025_VDJ_S8_L001_R1_001.fastq.gz
+│   │   ├── L364D_25072025_VDJ_S8_L001_R2_001.fastq.gz
+│   │   ├── L364D_25072025_VDJ_S8_L002_I1_001.fastq.gz
+│   │   ├── L364D_25072025_VDJ_S8_L002_I2_001.fastq.gz
+│   │   ├── L364D_25072025_VDJ_S8_L002_R1_001.fastq.gz
+│   │   └── L364D_25072025_VDJ_S8_L002_R2_001.fastq.gz
+│   └── GEX
+│       ├── L364D_25072025_GEX_S7_L001_I1_001.fastq.gz
+│       ├── L364D_25072025_GEX_S7_L001_I2_001.fastq.gz
+│       ├── L364D_25072025_GEX_S7_L001_R1_001.fastq.gz
+│       ├── L364D_25072025_GEX_S7_L001_R2_001.fastq.gz
+│       ├── L364D_25072025_GEX_S7_L002_I1_001.fastq.gz
+│       ├── L364D_25072025_GEX_S7_L002_I2_001.fastq.gz
+│       ├── L364D_25072025_GEX_S7_L002_R1_001.fastq.gz
+│       └── L364D_25072025_GEX_S7_L002_R2_001.fastq.gz
+├── Run_S1152_L364C_TopUpSequencing_01
+│   └── ADT_HTO
+│       ├── S1152_L364C_15072025_CSP_S1_L001_I1_001.fastq.gz
+│       ├── S1152_L364C_15072025_CSP_S1_L001_I2_001.fastq.gz
+│       ├── S1152_L364C_15072025_CSP_S1_L001_R1_001.fastq.gz
+│       └── S1152_L364C_15072025_CSP_S1_L001_R2_001.fastq.gz
+└── Run_S1161_L364C_TopUpSequencing_02
+    └── ADT_HTO
+        ├── S1161_L364C_15072025_CSP_S1_L001_I1_001.fastq.gz
+        ├── S1161_L364C_15072025_CSP_S1_L001_I2_001.fastq.gz
+        ├── S1161_L364C_15072025_CSP_S1_L001_R1_001.fastq.gz
+        ├── S1161_L364C_15072025_CSP_S1_L001_R2_001.fastq.gz
+        ├── S1161_L364C_15072025_CSP_S1_L002_I1_001.fastq.gz
+        ├── S1161_L364C_15072025_CSP_S1_L002_I2_001.fastq.gz
+        ├── S1161_L364C_15072025_CSP_S1_L002_R1_001.fastq.gz
+        └── S1161_L364C_15072025_CSP_S1_L002_R2_001.fastq.gz
 ```
 
 ## Runs
@@ -38,7 +160,3 @@ Raw_Data/
 | `Capture` | `L364A`–`L364D` |
 | `Library` | `GEX`, `VDJ`, `CSP` |
 | `Read` | `I1`, `I2` (indices), `R1` (barcode+UMI), `R2` (insert) |
-
-## Notes for processing
-
-- **L364C CSP** is spread over three runs (S1146, S1152, S1161). Pass all three `ADT_HTO/` folders as comma-separated `fastqs` for the same feature library in `cellranger multi`; sample prefixes differ (`L364C_15072025_CSP` vs `S1152_L364C_15072025_CSP` / `S1161_L364C_15072025_CSP`), so list each prefix explicitly.
